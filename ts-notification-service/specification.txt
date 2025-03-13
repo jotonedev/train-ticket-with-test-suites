@@ -1,0 +1,80 @@
+SERVICE: Notification Service
+
+ENDPOINT: GET /api/v1/notifyservice/welcome
+IF request is GET /api/v1/notifyservice/welcome THEN
+    RETURN "Welcome to [ Notification Service ] !"
+ENDIF
+
+ENDPOINT: POST /api/v1/notifyservice/notification/preserve_success
+IF request is POST /api/v1/notifyservice/notification/preserve_success THEN
+    RECEIVE NotifyInfo object
+    IF NotifyInfo object is valid THEN
+        CALL preserveSuccess function with NotifyInfo object
+        // Inside preserveSuccess function
+        CREATE Mail object with details from NotifyInfo
+        SET mail subject to "Preserve Success"
+        SET mail template to "preserve_success.ftl"
+        CALL sendEmail function from MailService with Mail object and template
+        RETURN result of preserve success notification (success or failure message)
+    ELSE
+        RETURN error message "Invalid NotifyInfo object"
+    ENDIF
+ENDIF
+
+ENDPOINT: POST /api/v1/notifyservice/notification/order_create_success
+IF request is POST /api/v1/notifyservice/notification/order_create_success THEN
+    RECEIVE NotifyInfo object
+    IF NotifyInfo object is valid THEN
+        CALL orderCreateSuccess function with NotifyInfo object
+        // Inside orderCreateSuccess function
+        CREATE Mail object with details from NotifyInfo
+        SET mail subject to "Order Create Success"
+        SET mail template to "order_create_success.ftl"
+        CALL sendEmail function from MailService with Mail object and template
+        RETURN result of order create success notification (success or failure message)
+    ELSE
+        RETURN error message "Invalid NotifyInfo object"
+    ENDIF
+ENDIF
+
+ENDPOINT: POST /api/v1/notifyservice/notification/order_changed_success
+IF request is POST /api/v1/notifyservice/notification/order_changed_success THEN
+    RECEIVE NotifyInfo object
+    IF NotifyInfo object is valid THEN
+        CALL orderChangedSuccess function with NotifyInfo object
+        // Inside orderChangedSuccess function
+        CREATE Mail object with details from NotifyInfo
+        SET mail subject to "Order Changed Success"
+        SET mail template to "order_changed_success.ftl"
+        CALL sendEmail function from MailService with Mail object and template
+        RETURN result of order changed success notification (success or failure message)
+    ELSE
+        RETURN error message "Invalid NotifyInfo object"
+    ENDIF
+ENDIF
+
+ENDPOINT: POST /api/v1/notifyservice/notification/order_cancel_success
+IF request is POST /api/v1/notifyservice/notification/order_cancel_success THEN
+    RECEIVE NotifyInfo object
+    IF NotifyInfo object is valid THEN
+        CALL orderCancelSuccess function with NotifyInfo object
+        // Inside orderCancelSuccess function
+        CREATE Mail object with details from NotifyInfo
+        SET mail subject to "Order Cancel Success"
+        SET mail template to "order_cancel_success.ftl"
+        CALL sendEmail function from MailService with Mail object and template
+        RETURN result of order cancel success notification (success or failure message)
+    ELSE
+        RETURN error message "Invalid NotifyInfo object"
+    ENDIF
+ENDIF
+
+// Comments:
+/*
+    - We can ensure NotifyInfo object validation to prevent processing invalid data.
+    - We can use environment variables or a configuration file for email credentials and templates directory.
+    - We can implement error handling in MailService to manage potential issues with the email server.
+    - We can handle edge cases where email sending might fail due to network or server issues.
+    - We can consider asynchronous email sending to improve response times and user experience.
+    - We can use secure and reliable email services to ensure the deliverability of notifications.
+*/

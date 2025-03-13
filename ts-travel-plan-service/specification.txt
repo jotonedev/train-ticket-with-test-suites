@@ -1,0 +1,114 @@
+SERVICE: Travel Plan Service
+
+ENDPOINT: GET api/v1/travelplanservice/welcome
+IF request is GET api/v1/travelplanservice/welcome THEN
+    RETURN welcoming message
+ENDIF
+
+ENDPOINT: POST api/v1/travelplanservice/travelPlan/transferResult
+IF request is POST api/v1/travelplanservice/travelPlan/transferResult THEN
+    RECEIVE transferTravelInfo from request body
+    CREATE tripInfoFirstSection with data form transferTravelInfo
+    REQUEST firstSectionHighSpeed via POST /api/v1/travelservice/trips/left with tripInfoFirstSection in body from ts-travel-service
+    REQUEST firstSectionNormal via POST /api/v1/travel2service/trips/left with tripInfoFirstSection in body from ts-travel2-service
+    CREATE tripInfoSecondSection with data from transferTravelInfo
+    REQUEST secondSectionHighSpeed via POST /api/v1/travelservice/trips/left with tripInfoSecondSection in body from ts-travel-service
+    REQUEST secondSectionNormal via POST /api/v1/travel2service/trips/left with tripInfoSecondSection in body from ts-travel2-service
+    CREATE firstSection list from both firstSectionHighSpeed and firstSectionNormal
+    CREATE secondSection list from both secondSectionHighSpeed and secondSectionNormal
+    CREATE transferTravelResult with firstSection and secondSection
+    RETURN transferTravelResult and success
+ENDIF
+
+
+ENDPOINT: POST api/v1/travelplanservice/travelPlan/cheapest
+IF request is POST api/v1/travelplanservice/travelPlan/cheapest THEN
+    RECEIVE tripInfo from request body
+    CREATE routePlanInfo with data from tripInfo
+    REQUEST routePlanResultUnits list via POST /api/v1/routeplanservice/routePlan/cheapestRoute with routePlanInfo in body from ts-route-plan-service
+    IF routePlanResultUnits list is NOT empty
+        CREATE empty travelAdvanceResultUnit list
+        FOR every element in routePlanResultUnits list
+            CREATE travelAdvanceResultUnit with data from routePlanResultUnit
+            REQUEST stops via POST /api/v1/stationservice/stations/namelist with routePlanResultUnit station list in body from ts-station-service
+            SET stops data in travelAdvanceResultUnit
+            CREATE seatRequest for firstClass with travelInfo data
+            REQUEST fromId for seatRequest via GET /api/v1/ticketinfoservice/ticketinfo/ with startingStationName in path from ts-ticketinfo-service
+            REQUEST toId for seatRequest via GET /api/v1/ticketinfoservice/ticketinfo/ with endStationName in path from ts-ticketinfo-service
+            REQUEST numberFirstClassRestTickets via POST /api/v1/seatservice/seats/left_tickets with seatRequest in body from ts-seat-service
+            CREATE seatRequest for secondClass with travelInfo data
+            REQUEST fromId for seatRequest via GET /api/v1/ticketinfoservice/ticketinfo/ with startingStationName in path from ts-ticketinfo-service
+            REQUEST toId for seatRequest via GET /api/v1/ticketinfoservice/ticketinfo/ with endStationName in path from ts-ticketinfo-service
+            REQUEST numberSecondClassRestTickets via POST /api/v1/seatservice/seats/left_tickets with seatRequest in body from ts-seat-service
+            SET numberFirstClassRestTickets and numberSecondClassRestTickets in travelAdvanceResultUnit
+            ADD travelAdvanceResultUnit to travelAdvanceResultUnit list
+        ENDFOR
+        RETURN travelAdvanceResultUnit list and success
+    ELSE
+        RETURN no exists
+    ENDIF
+ENDIF
+
+
+ENDPOINT: POST api/v1/travelplanservice/travelPlan/quickest
+IF request is POST api/v1/travelplanservice/travelPlan/quickest THEN
+    RECEIVE tripInfo from request body
+    CREATE routePlanInfo with data from tripInfo
+    REQUEST routePlanResultUnits list via POST /api/v1/routeplanservice/routePlan/quickestRoute with routePlanInfo in body from ts-route-plan-service
+    /*
+        COMMENT: following part is identical to cheapest travelplan because ony the routePlanResultUnits are potentially different
+    */
+    IF routePlanResultUnits list is NOT empty
+        CREATE empty travelAdvanceResultUnit list
+        FOR every element in routePlanResultUnits list
+            CREATE travelAdvanceResultUnit with data from routePlanResultUnit
+            REQUEST stops via POST /api/v1/stationservice/stations/namelist with routePlanResultUnit station list in body from ts-station-service
+            SET stops data in travelAdvanceResultUnit
+            CREATE seatRequest for firstClass with travelInfo data
+            REQUEST fromId for seatRequest via GET /api/v1/ticketinfoservice/ticketinfo/ with startingStationName in path from ts-ticketinfo-service
+            REQUEST toId for seatRequest via GET /api/v1/ticketinfoservice/ticketinfo/ with endStationName in path from ts-ticketinfo-service
+            REQUEST numberFirstClassRestTickets via POST /api/v1/seatservice/seats/left_tickets with seatRequest in body from ts-seat-service
+            CREATE seatRequest for secondClass with travelInfo data
+            REQUEST fromId for seatRequest via GET /api/v1/ticketinfoservice/ticketinfo/ with startingStationName in path from ts-ticketinfo-service
+            REQUEST toId for seatRequest via GET /api/v1/ticketinfoservice/ticketinfo/ with endStationName in path from ts-ticketinfo-service
+            REQUEST numberSecondClassRestTickets via POST /api/v1/seatservice/seats/left_tickets with seatRequest in body from ts-seat-service
+            SET numberFirstClassRestTickets and numberSecondClassRestTickets in travelAdvanceResultUnit
+            ADD travelAdvanceResultUnit to travelAdvanceResultUnit list
+        ENDFOR
+        RETURN travelAdvanceResultUnit list and success
+    ELSE
+        RETURN no exists
+    ENDIF
+ENDIF
+
+
+ENDPOINT: POST api/v1/travelplanservice/travelPlan/
+IF request is POST api/v1/travelplanservice/travelPlan/quickest THEN
+    RECEIVE tripInfo from request body
+    CREATE routePlanInfo with data from tripInfo
+    REQUEST routePlanResultUnits list via POST /api/v1/routeplanservice/routePlan/minStopStations with routePlanInfo in body from ts-route-plan-service
+    /*
+        COMMENT: following part is identical to cheapest and quickest travelplan because ony the routePlanResultUnits are potentially different
+    */
+    IF routePlanResultUnits list is NOT empty
+        CREATE empty travelAdvanceResultUnit list
+        FOR every element in routePlanResultUnits list
+            CREATE travelAdvanceResultUnit with data from routePlanResultUnit
+            REQUEST stops via POST /api/v1/stationservice/stations/namelist with routePlanResultUnit station list in body from ts-station-service
+            SET stops data in travelAdvanceResultUnit
+            CREATE seatRequest for firstClass with travelInfo data
+            REQUEST fromId for seatRequest via GET /api/v1/ticketinfoservice/ticketinfo/ with startingStationName in path from ts-ticketinfo-service
+            REQUEST toId for seatRequest via GET /api/v1/ticketinfoservice/ticketinfo/ with endStationName in path from ts-ticketinfo-service
+            REQUEST numberFirstClassRestTickets via POST /api/v1/seatservice/seats/left_tickets with seatRequest in body from ts-seat-service
+            CREATE seatRequest for secondClass with travelInfo data
+            REQUEST fromId for seatRequest via GET /api/v1/ticketinfoservice/ticketinfo/ with startingStationName in path from ts-ticketinfo-service
+            REQUEST toId for seatRequest via GET /api/v1/ticketinfoservice/ticketinfo/ with endStationName in path from ts-ticketinfo-service
+            REQUEST numberSecondClassRestTickets via POST /api/v1/seatservice/seats/left_tickets with seatRequest in body from ts-seat-service
+            SET numberFirstClassRestTickets and numberSecondClassRestTickets in travelAdvanceResultUnit
+            ADD travelAdvanceResultUnit to travelAdvanceResultUnit list
+        ENDFOR
+        RETURN travelAdvanceResultUnit list and success
+    ELSE
+        RETURN no exists
+    ENDIF
+ENDIF

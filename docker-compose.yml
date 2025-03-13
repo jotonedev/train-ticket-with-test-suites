@@ -1,0 +1,889 @@
+version: '3.6'
+services:
+  redis:
+    image: redis
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    ports:
+      - 6379:6379
+    networks:
+      - my-network
+
+  ts-ui-dashboard:
+    build: ts-ui-dashboard
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 200M
+    platform: linux/arm64/v8
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - my-network
+
+  ts-auth-service:
+    build: ts-auth-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 12340:12340
+    networks:
+      - my-network
+
+  ts-auth-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+            memory: 200M
+    networks:
+      - my-network
+
+  ts-user-service:
+    build: ts-user-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 12342:12342
+    networks:
+      - my-network
+
+  ts-user-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-verification-code-service:
+    build: ts-verification-code-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 15678:15678
+    networks:
+      - my-network
+
+  ts-account-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-route-service:
+    build: ts-route-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 11178:11178
+    networks:
+      - my-network
+
+  ts-route-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-contacts-service:
+    build: ts-contacts-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 12347:12347
+    networks:
+      - my-network
+
+  ts-contacts-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-order-service:
+    build: ts-order-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 12031:12031
+    networks:
+      - my-network
+
+  ts-order-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-order-other-service:
+    build: ts-order-other-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 12032:12032
+    networks:
+      - my-network
+
+  ts-order-other-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+
+  ts-config-service:
+    build: ts-config-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 15679:15679
+    networks:
+      - my-network
+
+  ts-config-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-station-service:
+    build: ts-station-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 12345:12345
+    networks:
+      - my-network
+
+  ts-station-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-train-service:
+    build: ts-train-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 14567:14567
+    networks:
+      - my-network
+
+  ts-train-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-travel-service:
+    build: ts-travel-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 12346:12346
+    networks:
+      - my-network
+
+  ts-travel-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-travel2-service:
+    build: ts-travel2-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 16346:16346
+    networks:
+      - my-network
+
+  ts-travel2-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-preserve-service:
+    build: ts-preserve-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 14568:14568
+    networks:
+      - my-network
+
+  ts-preserve-other-service:
+    build: ts-preserve-other-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 14569:14569
+    networks:
+      - my-network
+
+
+  ts-basic-service:
+    build: ts-basic-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 15680:15680
+    networks:
+      - my-network
+
+  ts-ticketinfo-service:
+    build: ts-ticketinfo-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 15681:15681
+    networks:
+      - my-network
+
+  ts-price-service:
+    build: ts-price-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 16579:16579
+    networks:
+      - my-network
+
+  ts-price-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-notification-service:
+    build: ts-notification-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 17853:17853
+    networks:
+      - my-network
+
+  ts-security-service:
+    build: ts-security-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 11188:11188
+    networks:
+      - my-network
+
+  ts-security-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-inside-payment-service:
+    build: ts-inside-payment-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 18673:18673
+    networks:
+      - my-network
+
+  ts-inside-payment-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-execute-service:
+    build: ts-execute-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 12386:12386
+    networks:
+      - my-network
+
+  ts-payment-service:
+    build: ts-payment-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 19001:19001
+    networks:
+      - my-network
+  ts-payment-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-rebook-service:
+    build: ts-rebook-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 18886:18886
+    networks:
+      - my-network
+
+  ts-rebook-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-cancel-service:
+    build: ts-cancel-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 18885:18885
+    networks:
+      - my-network
+
+  ts-assurance-service:
+    build: ts-assurance-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 18888:18888
+    networks:
+      - my-network
+
+  ts-assurance-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-seat-service:
+    build: ts-seat-service
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    env_file:
+      - dev.jvm.conf
+    restart: always
+    ports:
+      - 18898:18898
+    networks:
+      - my-network
+
+  ts-travel-plan-service:
+    build: ts-travel-plan-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 14322:14322
+    networks:
+      - my-network
+
+  ts-ticket-office-service:
+    build: ts-ticket-office-service
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 16108:16108
+    networks:
+      - my-network
+
+  ts-ticket-office-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-news-service:
+    build: ts-news-service
+    platform: linux/arm64/v8
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 12862:12862
+    networks:
+      - my-network
+
+  ts-news-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-voucher-mysql:
+    image: mysql
+    deploy:
+      resources:
+        limits:
+          memory: 500M
+    expose:
+      - "3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 'root'
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+    volumes:
+      - /var/lib/mysql
+    networks:
+      - my-network
+
+  ts-voucher-service:
+    build: ts-voucher-service
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 16101:16101
+    depends_on:
+      ts-voucher-mysql:
+          condition: service_healthy
+    networks:
+      - my-network
+
+  ts-food-map-service:
+    build: ts-food-map-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 18855:18855
+    networks:
+      - my-network
+
+  ts-food-map-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-route-plan-service:
+    build: ts-route-plan-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 14578:14578
+    networks:
+      - my-network
+
+  ts-food-service:
+    build: ts-food-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 18856:18856
+    networks:
+      - my-network
+
+  ts-consign-service:
+    build: ts-consign-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 16111:16111
+    networks:
+      - my-network
+
+  ts-consign-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-consign-price-service:
+    build: ts-consign-price-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 16110:16110
+    networks:
+      - my-network
+
+  ts-consign-price-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-food-mongo:
+    image: mongo:5.0.15
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - my-network
+
+  ts-admin-basic-info-service:
+    build: ts-admin-basic-info-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 18767:18767
+    networks:
+      - my-network
+
+  ts-admin-order-service:
+    build: ts-admin-order-service
+    env_file:
+      - dev.jvm.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    restart: always
+    ports:
+      - 16112:16112
+    networks:
+      - my-network
+
+  ts-admin-route-service:
+    build: ts-admin-route-service
+    env_file:
+      - dev.jvm.conf
+    restart: always
+    ports:
+      - 16113:16113
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    networks:
+      - my-network
+
+  ts-admin-travel-service:
+    build: ts-admin-travel-service
+    env_file:
+      - dev.jvm.conf
+    restart: always
+    ports:
+      - 16114:16114
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    networks:
+      - my-network
+
+  ts-admin-user-service:
+    build: ts-admin-user-service
+    env_file:
+      - dev.jvm.conf
+    restart: always
+    ports:
+      - 16115:16115
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    networks:
+      - my-network
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.29.0
+    ports:
+      - 16686:16686
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 300M
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    # driver: overlay
+    driver: bridge

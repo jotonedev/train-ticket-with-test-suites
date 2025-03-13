@@ -1,0 +1,118 @@
+SERVICE: Cancel Service
+
+ENDPOINT: GET "/api/v1/cancelservice/welcome"
+    RETURN success with text "Welcome to [ Cancel Service ] !"
+END
+
+ENDPOINT: GET "/api/v1/cancelservice/cancel/refound/{orderId}", PARAM: String orderId
+    PERFORM REQUEST GET "http://ts-order-service:12031/api/v1/orderservice/order/{orderId}" to get order by orderId from order service
+    RETRIEVE status FROM response
+
+    IF status == 1 THEN
+        RETRIEVE order FROM response
+        RETRIEVE status FROM order
+
+        IF order's status equals not paid OR order's status equals paid THEN
+            IF order's status equals not paid THEN
+                RETURN success with no data
+            ELSE
+                Calculate how much could be refunded
+                RETURN success with amount that could be refunded
+            ENDIF
+        ELSE
+            RETURN failure with no data
+        ENDIF
+    ELSE
+        PERFORM REQUEST GET "http://ts-order-other-service:12032/api/v1/orderOtherService/orderOther/{orderId}" to get order by orderId from order-other service
+        RETRIEVE status FROM response
+
+        IF status == 1 THEN
+            RETRIEVE order FROM response
+            RETRIEVE status FROM order
+
+            IF order's status equals not paid OR order's status equals paid THEN
+                IF order's status equals not paid THEN
+                    RETURN success with no data
+                ELSE
+                    Calculate how much could be refunded
+                    RETURN success with amount that could be refunded
+                ENDIF
+            ELSE
+                RETURN failure with no data
+            ENDIF
+        ELSE
+            RETURN failure that order is not found
+        ENDIF
+    ENDIF
+END
+
+ENDPOINT: GET "/cancel/{orderId}/{loginId}", PARAM: String orderId, String loginId
+    PERFORM REQUEST GET "http://ts-order-service:12031/api/v1/orderservice/order/{orderId}" to get order by orderId from order service
+    RETRIEVE status FROM response
+
+    IF status == 1 THEN
+        RETRIEVE order FROM response
+        RETRIEVE status FROM order
+
+        IF order's status is not paid OR order's status paid OR order's status is changed THEN
+            Prepare order to cancel
+            Execute REQUEST GET "http://ts-order-service:12031/api/v1/orderservice/order" to cancel order in order service with info provided by found order
+            RETRIEVE status FROM response
+
+            IF status == 1 THEN
+                Calculate how much could be refunded
+                Execute REQUEST GET "http://ts-inside-payment-service:18673/api/v1/inside_pay_service/inside_payment/drawback/{userId}/{money}" to drawback money for the specified user via inside-payment-service
+                IF operation completed successfully THEN
+                    Execute REQUEST GET "http://ts-user-service:12342/api/v1/userservice/users/id/{userId}" to get account of the user by userId
+                    IF user account is not found THEN
+                        RETURN failure with no data
+                    ENDIF
+                    Prepare notify information
+                    Execute REQUEST POST "http://ts-notification-service:17853/api/v1/notifyservice/notification/order_cancel_success" to notify the user about the status of operation
+                    RETURN success with no data
+                ENDIF
+
+                RETURN success with no data
+            ELSE
+                RETURN failure with no data
+            ENDIF
+        ELSE
+            RETURN failure with no data
+        ENDIF
+    ELSE
+        PERFORM REQUEST GET "http://ts-order-other-service:12032/api/v1/orderOtherService/orderOther/{orderId}" to get order by orderId from order service
+        RETRIEVE status FROM response
+
+        IF status == 1 THEN
+            RETRIEVE order FROM response
+            RETRIEVE status FROM order
+
+            IF order's status is not paid OR order's status paid OR order's status is changed THEN
+                Prepare order to cancel
+                PERFORM REQUEST GET "http://ts-order-other-service:12032/api/v1/orderservice/order" to cancel order in order service with info provided by found order
+                RETRIEVE status FROM response
+
+                IF status == 1 THEN
+                    Calculate how much could be refunded
+                    PERFORM REQUEST GET "http://ts-inside-payment-service:18673/api/v1/inside_pay_service/inside_payment/drawback/{userId}/{money}" to drawback money for the specified user via inside-payment-service
+                    IF operation completed successfully THEN
+                        PERFORM REQUEST GET "http://ts-user-service:12342/api/v1/userservice/users/id/{userId}" to get account of the user by userId
+                        IF user account is not found THEN
+                            RETURN failure with no data
+                        ENDIF
+                        Prepare notify information
+                        PERFORM REQUEST POST "http://ts-notification-service:17853/api/v1/notifyservice/notification/order_cancel_success" to notify the user about the status of operation
+                        RETURN success with no data
+                    ENDIF
+
+                    RETURN success with no data
+                ELSE
+                    RETURN failure with no data
+                ENDIF
+            ELSE
+                RETURN failure with no data
+            ENDIF
+        ENDIF
+    ENDIF
+END
+

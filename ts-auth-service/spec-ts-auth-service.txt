@@ -1,0 +1,46 @@
+SERVICE: Admin Auth Service
+
+ENDPOINT: GET "/api/v1/auth/hello"
+    RETURN success with text "hello"
+END
+
+ENDPOINT: POST "/api/v1/auth", PARAM: AuthDto authDto
+    Crete a default 'user' from request payload 'authDto'
+    DB_SAVE 'user' - save user
+    RETURN success with info of the created user
+END
+
+ENDPOINT: GET "/api/v1/users/hello"
+    RETURN success with text "hello"
+END
+
+ENDPOINT: POST "/api/v1/users/login", PARAM: BasicAuthDto dao
+    RETRIEVE verificationCode FROM dao
+
+    IF verificationCode is not empty THEN
+        REQUEST REQUEST GET "http://ts-verification-code-service:15678/api/v1/verifycode/verify/{verificationCode}" to verify code by calling the verification service using the provided verification code
+
+        IF returned result is not true THEN
+            RETURN failure with no data
+        ENDIF
+    ENDIF
+
+    RETRIEVE username FROM dao
+    RETRIEVE password FROM dao
+
+    AUTHENTICATE user by provided username and password using the authentication manager OR RETURN failure with no data ON ERROR
+    DB_FIND to find user with the provided username OR THROWS UserOperationException ON ERROR
+    CREATE_TOKEN for the found user internally in a system to return it to consumer
+
+    RETURN success with token information such as userId, username, token
+END
+
+ENDPOINT: GET "/api/v1/users"
+    DB_FIND to load all the users from database
+    RETURN success with all the users found
+END
+
+ENDPOINT: DELETE "/api/v1/users/{userId}", PARAM: String userId
+    DB_DELETE to delete the user by provided userId from database
+    RETURN success with no data
+END

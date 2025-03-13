@@ -1,0 +1,115 @@
+SERVICE: Rebook Service
+
+ENDPOINT: GET api/v1/rebookservice/welcome
+IF request is GET api/v1/rebookservice/welcome THEN
+    RETURN welcoming message
+ENDIF
+
+
+ENDPOINT: POST api/v1/rebookservice/rebook/difference
+IF request is POST api/v1/rebookservice/rebook/difference THEN
+    RECEIVE RebookInfo from request body
+    IF oldTripId from RebookInfo starts with G or D
+        REQUEST Order via GET /api/v1/orderservice/order/{orderId} with orderId in paths
+    ELSE
+        REQUEST Order via GET /api/v1/orderOtherService/orderOther/{orderId} with orderId in paths
+    ENDIF
+    IF Order does NOT exist
+        RETURN order not found
+    ELSE
+        CALCULATE TripAllDetailInfo with data from Order and RebookInfo
+        IF tripId from RebookInfo starts with G or D
+            REQUEST TripAllDetail via POST /api/v1/travelservice/trip_detail with TripAllDetailInfo in body
+        ELSE
+            REQUEST TripAllDetail via POST /api/v1/travel2service/trip_detail with TripAllDetailInfo in body
+        ENDIF
+        CALCULATE priceNew and priceOld
+        CALCULATE PaymentDifferenceInfo with orderId, tripId and loginId from RebookInfo, priceNew - priceOld
+        REQUEST isDifferencePayable via POST /api/v1/inside_pay_service/inside_payment/difference with PaymentDifference Info in body
+        IF isDifferencePayable is successful
+            UPDATE Order with new trip details
+            CALCULATE SEAT with data from Order and RebookInfo
+            REQUEST dispatchSeat via POST /api/v1/seatservice/seats
+            IF oldTripId and tripId from RebookInfo both start or both don't start with G or D
+                IF tripId from RebookInfo starts with G or D
+                    REQUEST updateOrder via PUT /api/v1/orderservice/order with updated order in body
+                ELSE
+                    REQUEST updateOrder via PUT /api/v1/orderOtherService/orderOther with updated order in body
+                ENDIF
+            ELSE
+                IF tripId from RebookInfo starts with G or D
+                    REQUEST deleteOrder via POST /api/v1/orderservice/order/{orderId} with orderId from Order in paths
+                    REQUEST createOrder via POST /api/v1/orderservice/order with Order in body
+                ELSE
+                    REQUEST deleteOrder via POST /api/v1/orderOtherService/orderOther/{orderId} with orderId from Order in paths
+                    REQUEST createOrder via POST /api/v1/orderOtherService/orderOther with Order in body
+                ENDIF
+            ENDIF
+            RETURN updated Order and successful
+        ELSE
+            RETURN no data and failure
+        ENDIF
+    ENDIF
+ENDIF
+
+
+ENDPOINT: POST api/v1/rebookservice/rebook
+IF request is POST api/v1/rebookservice/rebook THEN
+    RECEIVE RebookInfo from request body
+    IF oldTripId from RebookInfo starts with G or D
+        REQUEST Order via GET /api/v1/orderservice/order/{orderId} with orderId in paths
+    ELSE
+        REQUEST Order via GET /api/v1/orderOtherService/orderOther/{orderId} with orderId in paths
+    ENDIF
+    IF Order does NOT exist
+        RETURN order not found
+    ELSE
+        CALCULATE whether Order is suitable to reebok
+        IF Order is NOT suitable
+            RETURN no data and failure
+        ELSE
+            CALCULATE time between travelDate of Order and travelTime of Order
+            IF time is NOT before start of train or NOT within 2 hours of train start
+                RETURN no data and failure
+            ELSE
+                CALCULATE TripAllDetailInfo with data from Order and RebookInfo
+                IF tripId from RebookInfo starts with G or D
+                    REQUEST TripAllDetail via POST /api/v1/travelservice/trip_detail with TripAllDetailInfo in body
+                ELSE
+                    REQUEST TripAllDetail via POST /api/v1/travel2service/trip_detail with TripAllDetailInfo in body
+                ENDIF
+                CALCULATE priceNew and priceOld
+                CALCULATE difference between priceNew and priceOld
+                IF difference positive or 0
+                    IF difference if positive
+                        REQUEST drawBackMoney via GET /api/v1/inside_pay_service/inside_payment/drawback/{userId}/{money} with
+                            userId as loginId from RebookInfo and money as difference in paths
+                    ENDIF
+                    UPDATE Order with new trip details
+                    CALCULATE SEAT with data from Order and RebookInfo
+                    REQUEST dispatchSeat via POST /api/v1/seatservice/seats
+                        IF oldTripId and tripId from RebookInfo both start or both don't start with G or D
+                            IF tripId from RebookInfo starts with G or D
+                                REQUEST updateOrder via PUT /api/v1/orderservice/order with updated order in body
+                            ELSE
+                                REQUEST updateOrder via PUT /api/v1/orderOtherService/orderOther with updated order in body
+                            ENDIF
+                        ELSE
+                            IF tripId from RebookInfo starts with G or D
+                                 REQUEST deleteOrder via POST /api/v1/orderservice/order/{orderId} with orderId from Order in paths
+                                 REQUEST createOrder via POST /api/v1/orderservice/order with Order in body
+                            ELSE
+                                 REQUEST deleteOrder via POST /api/v1/orderOtherService/orderOther/{orderId} with
+                                            orderId from Order in paths
+                                 REQUEST createOrder via POST /api/v1/orderOtherService/orderOther with Order in body
+                            ENDIF
+                        ENDIF
+                    RETURN updated Order and successful
+                ELSE
+                    CREATE new Order with calculated difference
+                    RETURN request to pay for the different money and Order
+                ENDIF
+            ENDIF
+        ENDIF
+    ENDIF
+ENDIF

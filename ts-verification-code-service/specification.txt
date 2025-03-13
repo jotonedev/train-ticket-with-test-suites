@@ -1,0 +1,19 @@
+SERVICE: Verification Code Service
+
+ENDPOINT: GET api/v1/verifycode/generate
+IF request is GET api/v1/verifycode/generate THEN
+    CREATE random image
+    STORE result of image in cookie
+    RETURN randomly generated image
+ENDIF
+
+
+ENDPOINT: GET api/v1/verifycode/verify/{verifyCode}
+IF request is GET api/v1/verifycode/verify/{verifyCode} THEN
+    RECEIVE verifyCode from path
+    IF verifyCode equals code in cookie
+        RETURN true
+    ELSE
+        RETURN false
+    ENDIF
+ENDIF

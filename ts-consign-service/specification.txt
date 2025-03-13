@@ -1,0 +1,93 @@
+SERVICE: Consign Service
+
+ENDPOINT: GET /api/v1/consignservice/welcome
+IF request is GET /api/v1/consignservice/welcome THEN
+    RETURN "Welcome to [ Consign Service ] !"
+ENDIF
+
+ENDPOINT: POST /api/v1/consignservice/consigns
+IF request is POST /api/v1/consignservice/consigns THEN
+    RECEIVE Consign object
+    VALIDATE Consign object
+    IF Consign object is valid THEN
+        CALL insertConsignRecord function with Consign object
+        REQUEST price calculation from ts-consign-price-service with weight and region
+        INSERT consign record into database
+        RETURN result of consign record insertion (success or failure message)
+    ELSE
+        RETURN error message "Invalid Consign object"
+    ENDIF
+ENDIF
+
+ENDPOINT: PUT /api/v1/consignservice/consigns
+IF request is PUT /api/v1/consignservice/consigns THEN
+    RECEIVE Consign object
+    VALIDATE Consign object
+    IF Consign object is valid THEN
+        CALL updateConsignRecord function with Consign object
+        FIND existing consign record with Consign ID in database
+        IF record exists THEN
+            REQUEST price calculation from ts-consign-price-service if weight has changed
+            UPDATE existing consign record with new data
+            STORE updated consign record in database
+        ELSE
+            CALL insertConsignRecord function with Consign object
+            REQUEST price calculation from ts-consign-price-service with weight and region
+            INSERT new consign record into database
+        ENDIF
+        RETURN result of consign record update (success or failure message)
+    ELSE
+        RETURN error message "Invalid Consign object"
+    ENDIF
+ENDIF
+
+ENDPOINT: GET /api/v1/consignservice/consigns/account/{id}
+IF request is GET /api/v1/consignservice/consigns/account/{id} THEN
+    RECEIVE Account ID
+    CALL queryByAccountId function with Account ID
+    FIND consign records by Account ID in database
+    IF consign records are found THEN
+        RETURN consign records for the account
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF
+
+ENDPOINT: GET /api/v1/consignservice/consigns/order/{id}
+IF request is GET /api/v1/consignservice/consigns/order/{id} THEN
+    RECEIVE Order ID
+    CALL queryByOrderId function with Order ID
+    FIND consign record by Order ID in database
+    IF consign record is found THEN
+        RETURN consign record for the order
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF
+
+ENDPOINT: GET /api/v1/consignservice/consigns/{consignee}
+IF request is GET /api/v1/consignservice/consigns/{consignee} THEN
+    RECEIVE Consignee name
+    CALL queryByConsignee function with Consignee name
+    FIND consign records by Consignee name in database
+    IF consign records are found THEN
+        RETURN consign records for the consignee
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF
+
+NOTATION: @HystrixCommand
+DESCRIPTION: This annotation is used to specify that a method should be wrapped in a Hystrix command for fault tolerance. If the method fails, the fallback method specified in the annotation will be called to handle the error.
+
+IF any request fails THEN
+    CALL fallback function
+    RETURN default response
+ENDIF
+
+// Note: The fallback function should handle unexpected errors and return a user-friendly message.
+/*
+    - We can ensure that all Consign objects received in requests are thoroughly validated to avoid processing invalid data.
+    - We can provide detailed error messages to help clients understand why their request failed.
+    - We can ensure reliable communication with ts-consign-price-service and gracefully handle any potential timeouts or errors.
+*/

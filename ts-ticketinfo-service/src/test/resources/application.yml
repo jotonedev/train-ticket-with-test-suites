@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: ts-ticketinfo-service
+
+server:
+  port: 15681

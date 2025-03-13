@@ -1,0 +1,78 @@
+SERVICE: Food Service
+
+ENDPOINT: GET /api/v1/foodservice/welcome
+IF request is GET /api/v1/foodservice/welcome THEN
+    RETURN "Welcome to [ Food Service ] !"
+ENDIF
+
+ENDPOINT: GET /api/v1/foodservice/orders
+IF request is GET /api/v1/foodservice/orders THEN
+    CALL findAllFoodOrder function
+    RETURN list of all food orders
+    IF list has at least one element
+        RETURN list and success
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF
+
+ENDPOINT: POST /api/v1/foodservice/orders
+IF request is POST /api/v1/foodservice/orders THEN
+    RECEIVE FoodOrder object
+    IF FoodOrder object is valid THEN
+        CALL createFoodOrder function with FoodOrder object
+        RETURN result of food order creation with status CREATED (success or failure message)
+    ELSE
+        RETURN error message "Invalid FoodOrder object"
+    ENDIF
+ENDIF
+
+ENDPOINT: PUT /api/v1/foodservice/orders
+IF request is PUT /api/v1/foodservice/orders THEN
+    RECEIVE FoodOrder object
+    IF FoodOrder object is valid THEN
+        CALL updateFoodOrder function with FoodOrder object
+        RETURN result of food order update (success or failure message)
+    ELSE
+        RETURN error message "Invalid FoodOrder object"
+    ENDIF
+ENDIF
+
+ENDPOINT: DELETE /api/v1/foodservice/orders/{orderId}
+IF request is DELETE /api/v1/foodservice/orders/{orderId} THEN
+    RECEIVE Order ID
+    CALL deleteFoodOrder function with Order ID
+    RETURN result of food order deletion with status ACCEPTED (success or failure message)
+ENDIF
+
+ENDPOINT: GET /api/v1/foodservice/orders/{orderId}
+IF request is GET /api/v1/foodservice/orders/{orderId} THEN
+    RECEIVE Order ID
+    CALL findByOrderId function with Order ID
+    RETURN food order details for the given Order ID
+ENDIF
+
+ENDPOINT: GET /api/v1/foodservice/foods/{date}/{startStation}/{endStation}/{tripId}
+IF request is GET /api/v1/foodservice/foods/{date}/{startStation}/{endStation}/{tripId} THEN
+    RECEIVE Date, Start Station, End Station, and Trip ID
+    CALL getAllFood function with Date, Start Station, End Station, and Trip ID
+    // Communication with other services
+    REQUEST food details from ts-food-map-service for Train Food List by Trip ID
+    REQUEST route details from ts-travel-service for Route by Trip ID
+    REQUEST station details from ts-station-service for Start Station and End Station IDs
+    RETURN list of all food options for the given parameters
+    IF request fails THEN
+        CALL getAllFoodFallback function
+        RETURN default response
+    ENDIF
+ENDIF
+
+IF any request fails THEN
+    CALL fallback function
+    RETURN default response
+ENDIF
+// Comments:
+/*
+    - We can ensure validation for FoodOrder objects to prevent processing invalid data.
+    - We can fetch route details from ts-travel-service and station details from ts-station-service to ensure accurate trip-related data.
+*/

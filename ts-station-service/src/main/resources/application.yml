@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: ts-station-service
+  data:
+    mongodb:
+      uri: mongodb://ts-station-mongo:27017/ts
+
+# HTTP Server
+server:
+  port: 12345  # HTTP (Tomcat) port
+
+swagger:
+  controllerPackage: fdse.microservice
+
+# Uncomment and configure the following if you need tracing
+# opentracing:
+#   jaeger:
+#     udp-sender:
+#       host: jaeger
+#       port: 6831

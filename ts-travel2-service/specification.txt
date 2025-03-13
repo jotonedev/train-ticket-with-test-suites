@@ -1,0 +1,318 @@
+SERVICE: Travel2 Service
+
+ENDPOINT: GET api/v1/travel2service/welcome
+IF request is GET api/v1/travel2service/welcome THEN
+    RETURN welcoming message
+ENDIF
+
+
+ENDPOINT: GET api/v1/travel2service/trips
+IF request is GET api/v1/travel2service/trips THEN
+    FIND list of all trips in database
+    IF list has at least one element
+        RETURN list and success
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF
+
+
+ENDPOINT: POST api/v1/travel2service/trips
+IF request is POST api/v1/travel2service/trips THEN
+    RECEIVE travelInfo from request body
+    FIND trip with tripId in database
+    IF trip exists
+        /*
+            COMMENT: why is status code 1 returned?
+            Usually in case of an error the services respond with 0
+        */
+        RETURN already exists
+    ELSE
+        CREATE new trip with data from body
+        STORE created trip in database
+        RETURN success
+    ENDIF
+ENDIF
+
+
+ENDPOINT: PUT api/v1/travel2service/trips
+IF request is PUT api/v1/travel2service/trips THEN
+    RECEIVE travelInfo from request body
+    FIND tripId with tripId in database
+    IF trip does NOT exist
+        /*
+            COMMENT: why is status code 1 returned?
+            Usually in case of an error the services respond with 0
+        */
+        RETURN not exists
+    ELSE
+        /*
+            COMMENT: the operations performed in the update method of the Travel2serviceImpl class
+            is in my opinion not really an update but instead a create method.
+            It would make more sense to find the trip in the database, update the values of this object and then store
+            the updated version instead of creating a completely new trip.
+            Therefor I wrote the specification differently.
+            Otherwise:
+            CREATE trip with data from body
+            STORE created trip
+        */
+        UPDATE found trip with data from body
+        STORE updated trip
+        RETURN trip and success
+    ENDIF
+ENDIF
+
+
+ENDPOINT: DELETE api/v1/travel2service/trips/{tripId}
+IF request is DELETE api/v1/travel2service/trips/{tripId} THEN
+    RECEIVE tripId from path
+    FIND trip with tripId in database
+    IF trip exists
+        DELETE trip with tripId from database
+        RETURN tripId and success
+    ELSE
+        RETURN tripId not exists
+    ENDIF
+ENDIF
+
+
+ENDPOINT: GET api/v1/travel2service/trips/{tripId}
+IF request is GET api/v1/travel2service/trips/{tripId} THEN
+    RECEIVE tripId from path
+    FIND trip with tripId in database
+    IF trip exists
+        RETURN trip and success
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF
+
+
+ENDPOINT: GET api/v1/travel2service/admin_trip
+IF request is GET api/v1/travel2service/admin_trip THEN
+    FIND list of all trips in database
+    CREATE empty list of adminTrips
+    FOR every element in trip list
+        CREATE adminTrip with trip
+        REQUEST GET /api/v1/routeservice/routes/ with routeId in path from ts-route-service
+        SET route in adminTrip to returned route from request
+        REQUEST GET /api/v1/trainservice/trains/ with trainTypeId in  path from ts-train-service
+        SET trainType in adminTrip to returned trainType from request
+        ADD created adminTrip to list of adminTrips
+    ENDFOR
+    IF adminTrip list has at least one element
+        RETURN adminTrip list and success
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF
+
+
+ENDPOINT: POST api/v1/travel2service/trip_detail
+IF request is POST api/v1/travel2service/trip_detail THEN
+    RECEIVE tripAllDetailInfo from request body
+    CREATE new tripAllDetailInfo
+    FIND trip with tripId from tripAllDetailInfo in database
+    IF trip does NOT exists
+        SET tripAllDetailInfo tripResponse and trip to null
+    ELSE
+        REQUEST GET /api/v1/ticketinfoservice/ticketinfo/ with startStationName in path from ts-ticketinfo-service
+        SET startingPlaceId of created tripAllDetailInfo to response body of request
+        REQUEST GET /api/v1/ticketinfoservice/ticketinfo/ with endStationName in path from ts-ticketinfo-service
+        SET endPlaceId of created tripAllDetailInfo to response body of request
+        REQUEST route via GET /api/v1/routeservice/routes/ with routeId in path from ts-route-service
+        /*
+            COMMENT: coding style of method getTickets is horrible and needs refactoring
+            The length of this method is way to long to easily understand what is happening. It should be splitted.
+        */
+        IF departureTime is NOT after today
+            SET tripAllDetailInfo trip and tripResponse to null
+        ENDIF
+        REQUEST travelResult via POST /api/v1/ticketinfoservice/ticketinfo with with travel in body from ts-ticketinfo-service
+        REQUEST soldTickets via GET /api/v1/orderOtherService/orderOther/ with departureTime and tripId in path from ts-order-other-service
+        IF soldTickets does NOT exist
+            SET tripAllDetailInfo trip and tripResponse to null
+        ENDIF
+        /*
+            COMMENT: the two queryForStationId REQUESTs are completely redundant
+            1) The result is compared to the trip stationId (starting & terminal) which itself were gained through the same request earlier
+            2) No matter the result the ConfortClass and EconomyClass in ticketReponse are set with the same values
+            => the request is completely useless and just network overload
+            Therefore I skip it in the specification
+        */
+        /*
+            COMMENT: even the setting is redundant as it will be overwritten immediately
+        */
+        SET tripResponse ConfortClass and EconomyClass each to 50
+        /*
+            COMMENT: the two queryStationId REQUESTs in getRestTicketNumber are completely redundant
+            Why is the result not stored instead of requesting it multiple times inside of the same endpoint?
+            This just creates enormous unnecessary network traffic!
+            Therefor I skip it in the specification
+        */
+        REQUEST firstClassRestTicketNumber via POST /api/v1/seatservice/seats/left_tickets with seatRequest in body from ts-seat-service
+        REQUEST secondClassRestTicketNumber via POST /api/v1/seatservice/seats/left_tickets with seatRequest in body from ts-seat-service
+        SET tripResponse ConfortClass to firstClassRestTicketNumber
+        SET tripResponse EconomyClass to secondClassRestTicketNumber
+        SET tripResponse startingStation and terminalStation to startingPlaceName and endPlaceName
+        SET tripResponse startingTime to trip startingTime plus timeToStartingPoint
+        SET tripResponse endTime to trip startingTime plus timeToEndPoint
+        SET tripResponse tripId and trainTypeId to data from trip
+        SET tripResponse ConfortClassPrice and EconomyClassPrice to data from travelResult
+        SET created tripAllDetailInfo tripResponse to tripResponse
+        /*
+            COMMENT: again the database access to get the trip is redundant and therefor will be skipped.
+        */
+        SET created tripAllDetailInfo trip to trip
+    ENDIF
+    RETURN created tripAllDetailInfo and success
+ENDIF
+
+
+ENDPOINT: GET api/v1/travel2service/train_types/{tripId}
+IF request is GET api/v1/travel2service/train_types/{tripId} THEN
+    RECEIVE tripId from path
+    FIND trip with tripId in database
+    IF trip exists
+        REQUEST trainType via GET /api/v1/trainservice/trains/ with trainTypeId in path from ts-train-service
+    ENDIF
+    IF trainType is not null
+        RETURN trainType and success
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF
+
+/*
+    COMMENT: the failing responses of this endpoint are useless as they return tripId as a string to the message
+    instead of the actual tripId. This makes it impossible to identify the tripId that caused the error and should
+    be fixed.
+*/
+ENDPOINT: GET api/v1/travel2service/routes/{tripId}
+IF request is GET api/v1/travel2service/routes/{tripId} THEN
+    RECEIVE tripId from path
+    FIND trip with tripId in database
+    IF trip does NOT exist
+        RETURN tripId not exists
+    ELSE
+        REQUEST route via GET /api/v1/routeservice/routes/ with routeId in path from ts-route-service
+        IF route is null
+            RETURN routeId not exists
+        ELSE
+            RETURN route and success
+        ENDIF
+    ENDIF
+ENDIF
+
+
+/*
+    COMMENT: this endpoint contains two issues that need to be addressed. First the service is using
+
+    ArrayList<Trip> tempTripList = repository.findByRouteId(routeId);
+        if (tempTripList == null)
+
+    to check if there are no trips that are associated with the given routeId. However, repository methods returning
+    collections, collection alternatives, wrappers, and streams are guaranteed never to return null but rather a
+    corresponding empty representation (see https://docs.spring.io/spring-data/jpa/reference/repositories/null-handling.html).
+    This means that in our case, if there are no trips that are associated with the given routeId, tempTripList will
+    never be null, but rather an empty list. This leads to an if statement which is always false. This does not yet
+    break the logic of the implementation, however, because even if tempTripList were to be null and enter the code
+    within that if statement, it would simply do
+
+    tempTripList = new ArrayList<>();
+
+    and then add that empty tempTripList to the tripList. But this causes another issue. The service uses
+    if (!tripList.isEmpty())
+    at the end to decide whether to return a failing response when the tripList is empty. However, as stated above,
+    the way the method getTripByRoute in the service class is constructed makes it so that, tripList is (almost*)
+    never empty, because every time findByRouteId does not find any trips, it adds an empty list to tripList.
+    As a result, this if statement is also (almost*) always false, which leads to the service always returning a
+    successful response, although it shouldn’t behave like that.
+    Adjusting the logic within the service class to
+
+    ArrayList<Trip> tempTripList = repository.findByRouteId(routeId);
+        if (!tempTripList.isEmpty()) {
+            tripList.add(tempTripList);
+        }
+    will lead to a more desirable behavior, as only such trip lists will be added to the list that are not empty.
+
+    almost*: Only when the provided list of routeIds is empty, will the tripList be empty and return a failing response.
+    But is it desirable to return a successful response in all other cases? In my opinion, if the tripList only contains
+    lists that are all empty, then the response shouldn’t claim that it successfully created valid lists of trips either.
+    Generally, the trip list shouldn't contain empty elements, as it does not provide any more useful
+    information to the developer.
+*/
+ENDPOINT: POST api/v1/travel2service/trips/routes
+IF request is POST api/v1/travel2service/trips/routes THEN
+    RECEIVE list of routeIds from body
+    CREATE empty list of trips
+    FOR every element in list of routeIds
+        FIND list of trips by routeId in database
+        IF list of trips is null
+            ADD empty list of trips to list of trips
+        ELSE
+            ADD found list of trips to list of trips
+        ENDIF
+    ENDFOR
+    IF list of trips is NOT empty
+        RETURN list of trips and success
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF
+
+
+ENDPOINT: POST api/v1/travel2service/trips/left
+IF request is POST api/v1/travel2service/trips/left THEN
+    RECEIVE tripInfo from body
+    IF tripInfo startingPlace OR endPlace are null OR empty OR departureTime is null
+        RETURN emptyList of tripResponses
+    ENDIF
+    CREATE empty list of tripReponses
+    FIND all trips in database
+    FOR every trip
+        REQUEST route via GET /api/v1/routeservice/routes/ with routeId in path from ts-route-service
+        IF route contains startingPlace AND endplace AND startingPlace is before endPlace
+            /*
+                COMMENT: coding style of method getTickets is horrible and needs refactoring
+                The length of this method is way to long to easily understand what is happening. It should be splitted.
+            */
+            IF departureTime is NOT after today
+                RETURN no content
+            ENDIF
+            REQUEST travelResult via POST /api/v1/ticketinfoservice/ticketinfo with with travel in body from ts-ticketinfo-service
+            REQUEST soldTickets via GET /api/v1/orderOtherService/orderOther/ with departureTime and tripId in path from ts-order-other-service
+            IF soldTickets does NOT exist
+                RETURN no content
+            ENDIF
+            /*
+                COMMENT: the two queryForStationId REQUESTs are completely redundant
+                1) The result is compared to the trip stationId (starting & terminal) which itself were gained through the same request earlier
+                2) No matter the result the ConfortClass and EconomyClass in ticketReponse are set with the same values
+                => the request is completely useless and just network overload
+                Therefore I skip it in the specification
+            */
+            /*
+                COMMENT: even the setting is redundant as it will be overwritten immediately
+            */
+            SET tripResponse ConfortClass and EconomyClass each to 50
+            /*
+                COMMENT: the two queryStationId REQUESTs in getRestTicketNumber are completely redundant
+                Why is the result not stored instead of requesting it multiple times inside of the same endpoint?
+                This just creates enormous unnecessary network traffic!
+                Therefore I skip it in the specification
+            */
+            REQUEST firstClassRestTicketNumber via POST /api/v1/seatservice/seats/left_tickets with seatRequest in body from ts-seat-service
+            REQUEST secondClassRestTicketNumber via POST /api/v1/seatservice/seats/left_tickets with seatRequest in body from ts-seat-service
+            SET tripResponse ConfortClass to firstClassRestTicketNumber
+            SET tripResponse EconomyClass to secondClassRestTicketNumber
+            SET tripResponse startingStation and terminalStation to startingPlaceName and endPlaceName
+            SET tripResponse startingTime to trip startingTime plus timeToStartingPoint
+            SET tripResponse endTime to trip startingTime plus timeToEndPoint
+            SET tripResponse tripId and trainTypeId to data from trip
+            SET tripResponse ConfortClassPrice and EconomyClassPrice to data from travelResult
+            ADD tripResponse to list of tripResponses
+        ENDIF
+    ENDFOR
+    RETURN list of tripResponses and success
+ENDIF

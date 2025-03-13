@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: ts-execute-service
+  data:
+    mongodb:
+      uri: mongodb://localhost/ts
+
+server:
+  port: 12386

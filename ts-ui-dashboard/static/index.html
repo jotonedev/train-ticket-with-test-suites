@@ -1,0 +1,334 @@
+<!doctype html>
+<html ng-app="myApp" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <title>TrainTicket Admin</title>
+    <meta content="This is the admin page of TrainTicket system" name="description">
+    <meta content="index" name="keywords">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <meta content="webkit" name="renderer">
+    <meta content="no-siteapp" http-equiv="Cache-Control"/>
+    <link href="assets/i/favicon.png" rel="icon" type="image/png">
+    <link href="assets/i/app-icon72x72@2x.png" rel="apple-touch-icon-precomposed">
+    <meta content="Amaze UI" name="apple-mobile-web-app-title"/>
+    <link href="css/style.css" rel="stylesheet" type="text/css">
+    <link href="css/bootstrap.css" rel="stylesheet" type="text/css">
+    <link href="css/bootstrap-theme.css" rel="stylesheet" type="text/css">
+    <link href="assets/css/amazeui.min.css" rel="stylesheet"/>
+    <link href="assets/css/admin.css" rel="stylesheet">
+    <link href="assets/css/app.css" rel="stylesheet">
+
+    <link href="assets/css/client.css" rel="stylesheet">
+
+    <script src="assets/js/vue.js" type="text/javascript"></script>
+
+    <script charset="utf-8" defer src="assets/js/index.js" type="text/javascript"></script>
+    <script charset="utf-8" defer src="assets/js/client_common.js" type="text/javascript"></script>
+    <script charset="utf-8" defer src="assets/js/jquery.shCircleLoader-min.js" type="text/javascript"></script>
+
+</head>
+
+<body data-type="generalComponents">
+<header class="am-topbar am-topbar-inverse admin-header">
+    <div class="am-topbar-brand">
+        <a class="tpl-logo" href="javascript:;">
+            <img alt="" src="assets/img/logo.png">
+        </a>
+    </div>
+    <div class="am-icon-list tpl-header-nav-hover-ico am-fl am-margin-right">
+
+    </div>
+
+    <button class="am-topbar-btn am-topbar-toggle am-btn am-btn-sm am-btn-success am-show-sm-only"
+            data-am-collapse="{target: '#topbar-collapse'}"><span class="am-sr-only">导航切换</span> <span
+            class="am-icon-bars"></span></button>
+
+    <div class="am-collapse am-topbar-collapse" id="topbar-collapse">
+
+        <ul class="am-nav am-nav-pills am-topbar-nav am-topbar-right admin-header-list tpl-header-list">
+
+            <li id="goto_admin">
+                <a class="tpl-header-list-link" href="adminlogin.html">
+                    <span>admin-panel</span>
+                </a>
+            </li>
+
+            <li class="am-hide-sm-only"><a class="tpl-header-list-link" href="javascript:;"
+                                           id="admin-fullscreen"><span
+                    class="am-icon-arrows-alt"></span> <span class="admin-fullText">FullScreen</span></a>
+            </li>
+
+            <li class="am-dropdown" data-am-dropdown data-am-dropdown-toggle>
+                <a class="am-dropdown-toggle tpl-header-list-link" href="javascript:;">
+                    <span class="tpl-header-list-user-nick" id="client_name">Not Login</span><span
+                        class="tpl-header-list-user-ico"> <img src="assets/img/user01.png"></span>
+                </a>
+            </li>
+            <li id="logout_button">
+                <a class="tpl-header-list-link" href="#">
+                    <span class="am-icon-sign-out tpl-header-list-ico-out-size"></span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</header>
+
+<div class="tpl-page-container tpl-page-header-fixed">
+    <div class="tpl-left-nav tpl-left-nav-hover">
+        <div class="tpl-left-nav-title">
+            Management
+        </div>
+        <div class="tpl-left-nav-list">
+
+            <ul class="tpl-left-nav-menu">
+                <li class="tpl-left-nav-item">
+                    <a class="nav-link" href="index.html">
+                        <i class="am-icon-list-alt"></i>
+                        <span>Ticket Reserve</span>
+                        <i class="am-icon-star tpl-left-nav-content-ico am-fr am-margin-right"></i>
+                    </a>
+                </li>
+
+                <li class="tpl-left-nav-item">
+                    <a class="nav-link tpl-left-nav-link-list" href="client_order_list.html">
+                        <i class="am-icon-line-chart"></i>
+                        <span>Order List</span>
+                    </a>
+                </li>
+
+                <li class="tpl-left-nav-item">
+                    <a class="nav-link tpl-left-nav-link-list" href="client_consign_list.html">
+                        <i class="am-icon-globe"></i>
+                        <span>Consign List</span>
+                    </a>
+                </li>
+
+                <li class="tpl-left-nav-item">
+                    <a class="nav-link tpl-left-nav-link-list" href="client_adsearch.html">
+                        <i class="am-icon-users"></i>
+                        <span> Advanced Search</span>
+                    </a>
+                </li>
+
+
+                <li class="tpl-left-nav-item">
+                    <!-- 打开状态 a 标签添加 active 即可   -->
+                    <a class="nav-link tpl-left-nav-link-list" href="javascript:;">
+                        <i class="am-icon-table"></i>
+                        <span>Execute Flow</span>
+                        <i class="am-icon-angle-right tpl-left-nav-more-ico am-fr am-margin-right"></i>
+                    </a>
+                    <ul class="tpl-left-nav-sub-menu">
+                        <li>
+                            <!-- 打开状态 a 标签添加 active 即可   -->
+                            <a class="active" href="client_ticket_collect.html">
+                                <i class="am-icon-user"></i>
+                                <span>Ticket Collect</span>
+                            </a>
+
+                            <a href="client_enter_station.html">
+                                <i class="am-icon-institution"></i>
+                                <span>Enter Station</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+            </ul>
+
+
+        </div>
+    </div>
+
+    <div class="tpl-content-wrapper" id="reserveApp">
+        <div class="tpl-portlet-components">
+            <div class="portlet-title">
+                <div class="caption font-green bold">
+                    Ticket Booking
+                </div>
+
+            </div>
+            <div class="tpl-block">
+                <div class="am-g">
+                    <div class="am-u-sm-12">
+
+                        <!----------------------Flow Preserve Select Ticket-------------->
+                        <a name="anchor_flow_preserve_select_trip"></a>
+                        <div class="flow_preserve panel panel-default">
+
+                            <div class="panel-heading">
+                                <h3 class="panel-title">
+                                    Ticket Reserve
+                                    <div id="my-svg"></div>
+                                </h3>
+                            </div>
+
+                            <div class="input-box panel-body booking">
+                                <form class="form-horizontal">
+
+                                    <div class="form-group">
+                                        <div id="search_panel">
+                                            <ul>
+                                                <li>Starting Place:<input class="form-control"
+                                                                          id="travel_booking_startingPlace"
+                                                                          name=''
+                                                                          v-model="from"></li>
+                                                <li>Terminal Place:<input class="form-control"
+                                                                          id="travel_booking_terminalPlace"
+                                                                          name=''
+                                                                          v-model="to"></li>
+                                                <li>Date:<input class="form-control" id="travel_booking_date"
+                                                                min="2017-07-21"
+                                                                name=''
+                                                                type="date" v-model="selectedDate"></li>
+                                                <li>Train Type:<select class="form-control"
+                                                                       id="search_select_train_type"
+                                                                       name="train_type"
+                                                                       v-model="selectedTrainType">
+                                                    <option v-bind:value="item.value"
+                                                            v-for="item in trainTypes">{{item.text}}
+                                                    </option>
+                                                </select>
+                                                </li>
+
+                                                <li>
+                                                    <button class="btn btn-primary" id="travel_searching_button"
+                                                            type="button" v-on:click="searchTravel()">
+                                                        Search
+                                                    </button>
+                                                </li>
+                                            </ul>
+
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="panel-heading booking">
+                                <h3 class="panel-title">
+                                    Tickets Searching Result
+                                </h3>
+                            </div>
+                            <div class="panel-body booking">
+                                <table class="table table-striped" id="tickets_booking_list_table">
+                                    <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Trip Id</th>
+                                        <th>Train Type Id</th>
+                                        <th>From</th>
+                                        <th>To</th>
+                                        <th>Starting Time</th>
+                                        <th>End Time</th>
+                                        <th>2rd Class Seat Number</th>
+                                        <th>1st Class Seat Number</th>
+                                        <th>Select Seat</th>
+                                        <th>Operation</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <!--This is an empty table body-->
+
+
+                                    <tr v-for="(item, index) in travelList">
+                                        <td> {{index}}</td>
+                                        <td class='booking_tripId'>{{item.tripId.type}}{{item.tripId.number}}</td>
+                                        <td class='booking_trainTypeId'> {{item.trainTypeId}}</td>
+                                        <td class='booking_from'> {{item.startingStation}}</td>
+                                        <td class='booking_to'>{{item.terminalStation}}</td>
+                                        <td>{{item.startingTime}}</td>
+                                        <td>{{item.endTime}}</td>
+                                        <td>{{item.economyClass}}</td>
+                                        <td>{{item.confortClass}}</td>
+
+                                        <td>
+                                            <select class='form-control booking_seat_class'
+                                                    style="min-width: 120px;" v-model="selectedSeats[index]">
+                                                <option value="2"> 1st - {{item.priceForConfortClass}}</option>
+                                                <option value="3"> 2st - {{item.priceForEconomyClass}}</option>
+                                            </select>
+                                        </td>
+
+                                        <td>
+                                            <button class='btn btn-primary ticket_booking_button'
+                                                    v-on:click="preserverBooking(index,item.tripId.type,item.tripId.number,item.startingStation,item.terminalStation)">
+                                                Booking
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    </tbody>
+                                </table>
+
+                                <!--Prompt login Confirm-->
+                                <div class="am-modal am-modal-prompt" id="my-prompt" tabindex="-1">
+                                    <div class="am-modal-dialog">
+                                        <div class="am-modal-hd">Login</div>
+                                        <div class="am-g">
+                                            <div class="am-form-group am-u-sm-5">
+                                                <label>UserName:</label>
+                                            </div>
+                                            <div class="am-form-group am-u-sm-7">
+                                                <input class="am-form-field am-modal-prompt-input" id="user-login-email"
+                                                       placeholder="User Name"
+                                                       type="text">
+                                            </div>
+                                        </div>
+                                        <div class="am-g">
+                                            <div class="am-form-group am-u-sm-5">
+                                                <label>PassWord:</label>
+                                            </div>
+                                            <div class="am-form-group am-u-sm-7">
+                                                <input class="am-form-field am-modal-prompt-input" id="user-login-password"
+                                                       placeholder="PassWord"
+                                                       type="text" v-model="password">
+                                            </div>
+                                        </div>
+                                        <div class="am-g">
+                                            <div class="am-form-group am-u-sm-5">
+                                                <label>Verifycode:</label>
+                                            </div>
+                                            <div class="am-form-group am-u-sm-7">
+                                                <input class="am-form-field am-modal-prompt-input" id="user-login-verifycode"
+                                                       placeholder="Verify Code"
+                                                       type="text" v-model="verifyCode">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="am-form-group am-u-sm-5">
+                                                <label></label>
+                                            </div>
+                                            <div class="am-form-group am-u-sm-7">
+                                                <img class="captcha_img"
+                                                     id="flow_preserve_login_verification_code_img" src="/api/v1/verifycode/generate">
+                                            </div>
+                                        </div>
+
+                                        <br/>
+
+                                        <div class="am-modal-footer">
+                                            <span class="am-modal-btn" data-am-modal-cancel>Cancel</span>
+                                            <span class="am-modal-btn" data-am-modal-confirm
+                                                  v-on:click="login()">Submit</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tpl-alert"></div>
+        </div>
+    </div>
+</div>
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/amazeui.min.js"></script>
+<script src="assets/js/app.js"></script>
+
+
+</body>
+</html>

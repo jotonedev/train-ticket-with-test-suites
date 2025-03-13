@@ -1,0 +1,75 @@
+SERVICE: Price Service
+
+ENDPOINT: GET api/v1/priceservice/prices/welcome
+IF request is GET api/v1/priceservice/prices/welcome THEN
+    RETURN welcoming message
+ENDIF
+
+
+ENDPOINT: GET api/v1/priceservice/prices/{routeId}/{trainType}
+IF request is GET api/v1/priceservice/prices/{routeId}/{trainType} THEN
+    RECEIVE routeId and trainType from path
+    FIND priceConfig with routeId and trainType in database
+    IF priceConfig exists
+        RETURN priceConfig and success
+    ELSE
+        RETURN no config
+    ENDIF
+ENDIF
+
+
+ENDPOINT: GET api/v1/priceservice/prices
+IF request is GET api/v1/priceservice/prices THEN
+    FIND list of all priceConfigs in database
+    IF list has at least one element
+        RETURN list and success
+    ELSE
+        RETURN no config
+    ENDIF
+ENDIF
+
+
+ENDPOINT: POST api/v1/priceservice/prices
+IF request is POST api/v1/priceservice/prices THEN
+    RECEIVE priceConfig from request body
+    IF priceConfig id is null or less than 10 characters
+        CREATE new priceConfig with data from body
+        STORE created priceConfig in database
+        RETURN created priceConfig and success
+    ELSE
+        FIND priceConfig with received id in database
+        IF priceConfig does NOT exist
+            CREATE new priceConfig with data from body
+        ENDIF
+        UPDATE found priceConfig with data from body
+        STORE priceConfig in database
+        RETURN priceConfig and success
+    ENDIF
+ENDIF
+
+
+ENDPOINT: DELETE api/v1/priceservice/prices
+IF request is DELETE api/v1/priceservice/prices THEN
+    RECEIVE priceConfig from request body
+    FIND priceConfig with received id in database
+    IF priceConfig exists
+        DELETE found priceConfig from database
+        RETURN priceConfig and success
+    ELSE
+        RETURN not exists
+    ENDIF
+ENDIF
+
+
+ENDPOINT: PUT api/v1/priceservice/prices
+IF request is PUT api/v1/priceservice/prices THEN
+    RECEIVE priceConfig from request body
+    FIND priceConfig with received id in database
+    IF priceConfig exists
+        UPDATE found priceConfig with data from body
+        STORE updated priceConfig in database
+        RETURN updated priceConfig and success
+    ELSE
+        RETURN not exists
+    ENDIF
+ENDIF

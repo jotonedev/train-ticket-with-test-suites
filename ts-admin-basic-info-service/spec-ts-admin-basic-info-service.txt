@@ -1,0 +1,106 @@
+SERVICE: Admin Basic Info Service
+
+ENDPOINT: GET "/api/v1/adminbasicservice/welcome"
+    RETURN success with text "Welcome to [ AdminBasicInfo Service ] !"
+END
+
+ENDPOINT: GET "/api/v1/adminbasicservice/adminbasic/contacts"
+    PERFORM REQUEST GET "http://ts-contacts-service:12347/api/v1/contactservice/contacts" to load all the contacts from contacts service
+    RETURN success with list of contacts
+END
+
+ENDPOINT: DELETE "/api/v1/adminbasicservice/adminbasic/contacts/{contactsId}", PARAM: String contactsId
+    PERFORM REQUEST DELETE "http://ts-contacts-service:12347/api/v1/contactservice/contacts/{contactsId}" to delete the contact with provided id from contacts service
+    RETURN success with response payload from contacts-service
+END
+
+ENDPOINT: PUT "/api/v1/adminbasicservice/adminbasic/contacts", PARAM: Contacts mci
+    PERFORM REQUEST PUT "http://ts-contacts-service:12347/api/v1/contactservice/contacts" to update the existing contact in contacts service
+    RETURN success with response payload from contacts-service
+END
+
+ENDPOINT: POST "/api/v1/adminbasicservice/adminbasic/contacts", PARAM: Contacts mci
+    PERFORM REQUEST POST "http://ts-contacts-service:12347/api/v1/contactservice/contacts/admin" to add a new contact in contacts service
+    RETURN success with response payload from contacts-service
+END
+
+ENDPOINT: GET "/api/v1/adminbasicservice/adminbasic/stations"
+    PERFORM REQUEST GET "http://ts-station-service:12345/api/v1/stationservice/stations" to load all the stations from station service
+    RETURN success with list of stations
+END
+
+ENDPOINT: DELETE "/api/v1/adminbasicservice/adminbasic/stations", PARAM: Station s
+    PERFORM REQUEST DELETE "http://ts-station-service:12345/api/v1/stationservice/stations" to delete the station by provided via body payload 's' from station service
+    RETURN success with response payload from station-service
+END
+
+ENDPOINT: PUT "/api/v1/adminbasicservice/adminbasic/stations", PARAM: Station s
+    PERFORM REQUEST PUT "http://ts-station-service:12345/api/v1/stationservice/stations" to update existing station by provided via body payload 's' in station service
+    RETURN success with response payload from station-service
+END
+
+ENDPOINT: POST "/api/v1/adminbasicservice/adminbasic/stations", PARAM: Station s
+    PERFORM REQUEST POST "http://ts-station-service:12345/api/v1/stationservice/stations" to add new station with info provided via body payload 's' in station service
+    RETURN success with response payload from station-service
+END
+
+ENDPOINT: GET "/api/v1/adminbasicservice/adminbasic/trains"
+    PERFORM REQUEST GET "http://ts-train-service:14567/api/v1/trainservice/trains" to load all the trains from train service
+    RETURN success with list of all trains from train-service
+END
+
+ENDPOINT: DELETE "/api/v1/adminbasicservice/adminbasic/trains/{id}", PARAM: String id
+    PERFORM REQUEST DELETE "http://ts-train-service:14567/api/v1/trainservice/trains/{id}" to delete train by provided 'id' from train service
+    RETURN success with response payload from train-service
+END
+
+ENDPOINT: PUT "/api/v1/adminbasicservice/adminbasic/trains", PARAM: TrainType t
+    PERFORM REQUEST PUT "http://ts-train-service:14567/api/v1/trainservice/trains" to update existing train with the info provided via body payload 't' in train service
+    RETURN success with response payload from train-service
+END
+
+ENDPOINT: POST "/api/v1/adminbasicservice/adminbasic/trains", PARAM: TrainType t
+    PERFORM REQUEST POST "http://ts-train-service:14567/api/v1/trainservice/trains" to add new train with the info provided via body payload 't' in train service
+    RETURN success with response payload from train-service
+END
+
+ENDPOINT: GET "/api/v1/adminbasicservice/adminbasic/configs"
+    PERFORM REQUEST GET "http://ts-config-service:15679/api/v1/configservice/configs" to get all configs from config service
+    RETURN success with list of configs from config-service
+END
+
+ENDPOINT: DELETE "/api/v1/adminbasicservice/adminbasic/configs/{name}", PARAM: String name
+    PERFORM REQUEST DELETE "http://ts-config-service:15679/api/v1/configservice/configs/{name}" to delete a config by provided 'name' from config service
+    RETURN success with response payload from config-service
+END
+
+ENDPOINT: PUT "/api/v1/adminbasicservice/adminbasic/configs", PARAM: Config c
+    PERFORM REQUEST PUT "http://ts-config-service:15679/api/v1/configservice/configs" to update existing config with the info provided via body payload 'c' in config service
+    RETURN success with response payload from config-service
+END
+
+ENDPOINT: POST "/api/v1/adminbasicservice/adminbasic/configs", PARAM: Config c
+    PERFORM REQUEST POST "http://ts-config-service:15679/api/v1/configservice/configs" to add a new config with the info provided via body payload 'c' in config service
+    RETURN success with response payload from config-service
+END
+
+ENDPOINT: GET "/api/v1/adminbasicservice/adminbasic/prices"
+    PERFORM REQUEST GET "http://ts-price-service:16579/api/v1/priceservice/prices" to get all prices from price service
+    RETURN success with list of prices from price-service
+END
+
+ENDPOINT: DELETE "/api/v1/adminbasicservice/adminbasic/prices", PARAM: PriceInfo pi
+    PERFORM REQUEST DELETE "http://ts-price-service:16579/api/v1/priceservice/prices" to delete a price by provided 'pi' from price service
+    RETURN success with response payload from price-service
+END
+
+ENDPOINT: PUT "/api/v1/adminbasicservice/adminbasic/prices", PARAM: PriceInfo pi
+    PERFORM REQUEST PUT "http://ts-price-service:16579/api/v1/priceservice/prices" to update the existing price with the info provided via body payload 'pi' in price service
+    RETURN success with response payload from price-service
+END
+
+ENDPOINT: POST "/api/v1/adminbasicservice/adminbasic/prices", PARAM: PriceInfo pi
+    PERFORM REQUEST POST "http://ts-price-service:16579/api/v1/priceservice/prices" to add a new price with the info provided via body payload 'pi' in price service
+    RETURN success with response payload from price-service
+END
+

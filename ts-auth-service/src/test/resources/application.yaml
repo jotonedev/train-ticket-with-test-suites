@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: ts-auth-service
+  data:
+    mongodb:
+      uri: "mongodb://localhost/ts-auth-mongo"
+
+server:
+  port: 12340

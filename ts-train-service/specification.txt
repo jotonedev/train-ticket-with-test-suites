@@ -1,0 +1,107 @@
+SERVICE: Train Service
+
+ENDPOINT: GET api/v1/trainservice/trains/welcome
+IF request is GET api/v1/trainservice/trains/welcome THEN
+    RETURN welcoming message
+ENDIF
+
+
+ENDPOINT: GET api/v1/trainservice/trains
+IF request is GET api/v1/trainservice/trains THEN
+    FIND list of all trains in database
+    IF list has at least one element
+        RETURN list and success
+    ELSE
+        RETURN empty list and no content
+    ENDIF
+ENDIF
+
+/*
+    COMMENT: this endpoint does not work as expected because the create method in service class is using
+    if (repository.findById(trainType.getId()) == null) to determine if the train type already exists. However, findById
+    returns an Optional, meaning that if there is no element in the database that matches the ID, it will return
+    Optional.empty instead of null. As a result, the create method returns a response indicating that
+    the creation of the train type was not successful because the train type already exists, even though it does not.
+    Replacing the if statement above with if (!repository.findById(trainType.getId()).isPresent()) will lead to the desired behavior.
+
+    The following specification has been written in a way as if this endpoint works as expected.
+*/
+ENDPOINT: POST api/v1/trainservice/trains
+IF request is POST api/v1/trainservice/trains THEN
+    RECEIVE trainType from request body
+    FIND trainType with received id in database
+    IF trainType exists
+        RETURN trainType and already exists
+    ELSE
+        CREATE new trainType with data from body
+        STORE created trainType in database
+        RETURN success
+    ENDIF
+ENDIF
+
+/*
+    COMMENT: this endpoint does not work as expected because the update method in service class is using
+    if (repository.findById(station.getId()) != null) to determine if the train type already exists. However, findById
+    returns an Optional, meaning that if there is no element in the database that matches the ID, it will return
+    Optional.empty instead of null. As a result, the update method returns a response indicating that
+    the train type was updated successfully, even though it did not exist beforehand.
+    Replacing the if statement above with if (repository.findById(station.getId()).isPresent()) will lead to the desired behavior.
+
+    The following specification has been written in a way as if this endpoint works as expected.
+*/
+ENDPOINT: PUT api/v1/trainservice/trains
+IF request is PUT api/v1/trainservice/trains THEN
+    RECEIVE trainType from request body
+    FIND trainType with received id in database
+    IF trainType does NOT exist
+        RETURN not exists
+    ELSE
+        /*
+            COMMENT: the operations performed in the update method of the TrainServiceImpl class
+            is in my opinion not really an update but instead a create method.
+            It would make more sense to find the trainType in the database, update the values of this object and then store
+            the updated version instead of creating a completely new trainType.
+            Therefore I wrote the specification differently.
+            Otherwise:
+            CREATE trainType with data from body
+            STORE created trainType
+        */
+        UPDATE found trainType with data from body
+        STORE updated trainType
+        RETURN success
+    ENDIF
+ENDIF
+
+/*
+    COMMENT: this endpoint does not work as expected because the delete method in service class is using
+    if (repository.findById(id) != null) to determine if the train type with the id given in paths already exists.
+    However, findById returns an Optional, meaning that if there is no element in the database that matches the ID,
+    it will return Optional.empty instead of null. As a result, the delete method returns a response indicating that
+    tthe deletion of the train type was successful, even though the train type did not exist beforehand.
+    Replacing the if statement above with if (repository.findById(id)isPresent()) will lead to the desired behavior.
+
+    The following specification has been written in a way as if this endpoint works as expected.
+*/
+ENDPOINT: DELETE api/v1/trainservice/trains/{id}
+IF request is DELETE api/v1/trainservice/trains/{id} THEN
+    RECEIVE id from path
+    FIND trainType with id in database
+    IF trainType exists
+        DELETE trainType from database
+        RETURN success
+    ELSE
+        RETURN id not exists
+    ENDIF
+ENDIF
+
+
+ENDPOINT: GET api/v1/trainservice/trains/{id}
+IF request is GET api/v1/trainservice/trains/{id} THEN
+    RECEIVE id from path
+    FIND trainType with id in database
+    IF trainType does NOT exist
+        RETURN id not exists
+    ELSE
+        RETURN trainType and success
+    ENDIF
+ENDIF

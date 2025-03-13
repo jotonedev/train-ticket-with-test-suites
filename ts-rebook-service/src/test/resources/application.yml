@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: ts-rebook-service
+  data:
+    mongodb:
+      uri: mongodb://localhost/ts
+
+server:
+  port: 18886

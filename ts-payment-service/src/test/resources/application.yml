@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: ts-payment-service
+  data:
+    mongodb:
+      uri: mongodb://localhost/ts
+
+server:
+  port: 19001

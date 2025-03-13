@@ -1,0 +1,26 @@
+SERVICE: Admin User Service
+
+ENDPOINT: GET "/api/v1/adminuserservice/users/welcome"
+    RETURN success with text "Welcome to [ AdminUser Service ] !"
+END
+
+ENDPOINT: GET "/api/v1/adminuserservice/users"
+    PERFORM REQUEST GET "http://ts-user-service:12342/api/v1/userservice/users" to load all users from user service
+    RETURN success with list of users
+END
+
+ENDPOINT: PUT "/api/v1/adminuserservice/users", PARAM: UserDto userDto
+    PERFORM REQUEST PUT "http://ts-user-service:12342/api/v1/userservice/users" to update exiting user with the info provided via request payload 'userDto' in user service
+    RETURN success with response payload from user-service
+END
+
+ENDPOINT: POST "/api/v1/adminuserservice/users", PARAM: UserDto userDto
+    PERFORM REQUEST POST "http://ts-user-service:12342/api/v1/userservice/users/register" to add new user with info provided via request payload 'userDto' in user service
+    RETURN success with response payload from user-service
+END
+
+ENDPOINT: DELETE "/api/v1/adminuserservice/users/{userId}", PARAM: String userId
+    PERFORM REQUEST DELETE "http://ts-user-service:12342/api/v1/userservice/users/{userId}" to delete user by provided 'userId' from user service
+    RETURN success with response payload from user-service
+END
+

@@ -1,0 +1,66 @@
+SERVICE: Admin Travel Service
+
+ENDPOINT: GET "/api/v1/admintravelservice/welcome"
+    RETURN success with text "Welcome to [ AdminTravel Service ] !"
+END
+
+ENDPOINT: GET "/api/v1/admintravelservice/admintravel"
+    PERFORM REQUEST GET "http://ts-travel-service:12346/api/v1/travelservice/admin_trip" to load all trips from travel service
+    RETRIEVE status FROM response
+
+    IF status == 1
+    THEN
+        add all returned trips to 'trips'
+    ENDIF
+
+    PERFORM REQUEST GET "http://ts-travel2-service:16346/api/v1/travel2service/admin_trip" to load all trips from travel2 service
+    RETRIEVE status FROM response
+
+    IF status == 1 THEN
+        add all returned trips to 'trips'
+    ENDIF
+
+    RETURN success with list of trips from both travel and travel2 services
+END
+
+ENDPOINT: POST "/api/v1/admintravelservice/admintravel", PARAM: TravelInfo request
+    RETRIEVE trainType from request
+
+    IF trainType starts with 'G' OR trainType starts with 'D' THEN
+        PERFORM REQUEST POST "http://ts-travel-service:12346/api/v1/travelservice/trips" to add a new trip to travel service
+    ELSE
+        PERFORM REQUEST POST "http://ts-travel2-service:16346/api/v1/travel2service/trips" to add a new trip to travel2 service
+    ENDIF
+
+    RETRIEVE status FROM response
+    IF status == 1
+    THEN
+        RETURN success with no data
+    ELSE
+        RETURN failure with no data
+    ENDIF
+END
+
+ENDPOINT: PUT "/api/v1/admintravelservice/admintravel", PARAM: TravelInfo request
+    RETRIEVE trainType from request
+
+    IF trainType starts with 'G' OR trainType starts with 'D' THEN
+        PERFORM REQUEST PUT "http://ts-travel-service:12346/api/v1/travelservice/trips" to update existing trip with the info provided via 'request' payload in travel service
+    ELSE
+        PERFORM REQUEST PUT "http://ts-travel2-service:16346/api/v1/travel2service/trips" to update existing trip with the info provided via 'request' payload in travel service
+    ENDIF
+
+    RETURN success with response payload from either travel or travel2 service depending on trainType
+END
+
+ENDPOINT: DELETE "/api/v1/admintravelservice/admintravel/{tripId}", PARAM: String tripId, PARAM: String trainNumber
+    IF trainNumber starts with 'G' OR trainNumber starts with 'D'
+    THEN
+        PERFORM REQUEST DELETE "http://ts-travel-service:12346/api/v1/travelservice/trips/{tripId}" to delete trip by tripId from travel service
+    ELSE
+        PERFORM REQUEST DELETE "http://ts-travel2-service:16346/api/v1/travel2service/trips/{tripId}" to delete trip by tripId from travel2 service
+    ENDIF
+
+    RETURN success with response payload from either travel or travel2 service depending on trainNumber
+END
+

@@ -1,0 +1,178 @@
+SERVICE: Station Service
+
+ENDPOINT: GET api/v1/stationservice/welcome
+IF request is GET api/v1/stationservice/welcome THEN
+    RETURN welcoming message
+ENDIF
+
+
+ENDPOINT: GET api/v1/stationservice/stations
+IF request is GET api/v1/stationservice/stations THEN
+    FIND list of all stations in database
+    IF list has at least one element
+        RETURN list and success
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF
+
+/*
+    COMMENT: this endpoint does not work as expected because the create method in service class is using
+    if (repository.findById(station.getId()) == null) to determine if the station already exists. However, findById
+    returns an Optional, meaning that if there is no element in the database that matches the ID, it will return
+    Optional.empty instead of null. As a result, the create method returns a response indicating that the station already
+    exists, even though it does not.
+    Replacing the if statement above with if (!repository.findById(station.getId()).isPresent()) will lead to the desired behavior.
+
+    The following specification has been written in a way as if this endpoint works as expected.
+*/
+ENDPOINT: POST api/v1/stationservice/stations
+IF request is POST api/v1/stationservice/stations THEN
+    RECEIVE station from request body
+    FIND station with received id in database
+    IF station exists
+        RETURN already exists
+    ELSE
+        /*
+            COMMENT: in my opinion this is redundant because the already set stayTime value of the station just gets set again
+            SET stayTime of station from body
+        */
+        STORE received station in database
+        RETURN received station and success
+    ENDIF
+ENDIF
+
+/*
+    COMMENT: this endpoint does not work as expected because the update method in service class is using
+    if (repository.findById(station.getId()) == null) to determine if the station already exists. However, findById
+    returns an Optional, meaning that if there is no element in the database that matches the ID, it will return
+    Optional.empty instead of null. As a result, the update method returns a response indicating that
+    the station was updated successfully, even though it did not exist beforehand.
+    Replacing the if statement above with if (!repository.findById(station.getId()).isPresent()) will lead to the desired behavior.
+
+    The following specification has been written in a way as if this endpoint works as expected.
+*/
+ENDPOINT: PUT api/v1/stationservice/stations
+IF request is PUT api/v1/stationservice/stations THEN
+    RECEIVE station from request body
+    FIND station with received id in database
+    IF station does NOT exist
+        RETURN not exists
+    ELSE
+        /*
+            COMMENT: the operations performed in the update method of the StationServiceImpl class
+            are in my opinion not really an update but instead a create method.
+            It would make more sense to find the station in the database, update the values of this object and then store
+            the updated version instead of creating a completely new station. Therefor I wrote the specification differently.
+            Otherwise:
+            CREATE station with data from body
+            STORE created station
+        */
+        UPDATE found station with data from body
+        STORE updated station
+        RETURN updated station and success
+    ENDIF
+ENDIF
+
+/*
+    COMMENT: this endpoint does not work as expected because the delete method in service class is using
+    if (repository.findById(station.getId()) != null) to determine if the station already exists. However, findById
+    returns an Optional, meaning that if there is no element in the database that matches the ID, it will return
+    Optional.empty instead of null. As a result, the delete method returns a response indicating that
+    the deletion of the station was successful, even though the station did not exist beforehand.
+    Replacing the if statement above with if (repository.findById(station.getId()).isPresent()) will lead to the desired behavior.
+
+    The following specification has been written in a way as if this endpoint works as expected.
+*/
+ENDPOINT: DELETE api/v1/stationservice/stations
+IF request is DELETE api/v1/stationservice/stations THEN
+    RECEIVE station from body
+    FIND station with id from body in database
+    IF station exists
+        /*
+            COMMENT: the following is unnecessarily complex
+            It would be enough to just provide the station id in the path and delete by id
+            The provided implementation is not wrong but creating a new station to just use it to delete an existing one
+            is unnecessary when the id is a unique identifier. The provided specification is based on the implementation.
+        */
+        CREATE station with id and name from body
+        DELETE station with created station
+        RETURN station and success
+    ELSE
+        RETURN no exists
+    ENDIF
+ENDIF
+
+
+ENDPOINT: GET api/v1/stationservice/stations/id/{stationNameForId}
+IF request is GET api/v1/stationservice/stations/id/{stationNameForId} THEN
+    RECEIVE stationNameForId from path
+    FIND station with received name in database
+    IF station exists
+        RETURN stationId and success
+    ELSE
+        RETURN station name and not exists
+    ENDIF
+ENDIF
+
+
+ENDPOINT: POST api/v1/stationservice/stations/idlist
+IF request is POST api/v1/stationservice/stations/idlist THEN
+    /*
+        COMMENT: why is this a post request?
+        The functionality is clearly just getting a list of ids based on a provided list of names
+    */
+    RECEIVE stationNameList from body
+    CREATE empty list of station ids
+    FOR every element in stationNameList
+        FIND station by name in database
+        IF station exists
+            ADD station id to list of station ids
+        ELSE
+            ADD not exists to list of station ids
+        ENDIF
+    ENDFOR
+    IF list of station ids is empty
+        RETURN no content
+    ELSE
+        RETURN list of station ids and success
+    ENDIF
+ENDIF
+
+
+ENDPOINT: GET api/v1/stationservice/stations/name/{stationIdForName}
+IF request is GET api/v1/stationservice/stations/name/{stationIdForName} THEN
+    RECEIVE stationIdForName from path
+    FIND station with received id in database
+    IF station exists
+        RETURN station name and success
+    ELSE
+        RETURN stationId and not exists
+    ENDIF
+ENDIF
+
+
+ENDPOINT: POST api/v1/stationservice/stations/namelist
+IF request is POST api/v1/stationservice/stations/namelist THEN
+    /*
+        COMMENT: why is this a post request?
+        The functionality is clearly just getting a list of names based on a provided list of ids
+    */
+    RECEIVE stationIdList from body
+    CREATE empty list of station names
+    FOR every element in stationIdList
+        FIND station by id in database
+        IF station exists
+            ADD station name to list of station names
+        ENDIF
+    ENDFOR
+    IF list of station names is empty
+        /*
+            COMMENT: why do we return an empty list here but null at POST api/v1/stationservice/stations/idlist
+            This is confusing because similar endpoints have different responses for similar outcomes.
+        */
+        RETURN empty list and no content
+    ELSE
+        RETURN list of station names and success
+    ENDIF
+ENDIF

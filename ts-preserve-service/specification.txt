@@ -1,0 +1,142 @@
+/**
+* The preserve method in PreserveServiceImpl.java is excessively long and contains
+* numerous method calls that invoke other services. To improve readability, the
+* specification has been divided into two categories: ENDPOINT and SERVICE METHOD.
+*/
+
+SERVICE: Preserve Service
+
+ENDPOINT: GET api/v1/preserveservice/welcome
+IF request is GET api/v1/preserveservice/welcome THEN
+    RETURN welcoming message
+ENDIF
+
+
+ENDPOINT: POST api/v1/preserveservice/preserve
+IF request is POST api/v1/preserveservice/preserve THEN
+    RECEIVE OrderTicketsInfo from request body
+    CALL preserve method in PreserveService with OrderTicketsInfo
+    RETURN result of preserve method
+ENDIF
+
+
+SERVICE METHOD: preserve in PreserveService
+IF method preserve is called THEN
+    RECEIVE OrderTicketsInfo
+    CALL checkSecurity method with OrderTicketsInfo
+    CALL getContactsById method with contactsId from OrderTicketsInfo
+    CALCULATE TripAlLDetailInfo
+    CALL getTripAllDetailInformation method with TripAllDetailInfo
+    CALL queryForStationId method with from location from OrderTicketsInfo
+    CALL queryForStationId method with to location OrderTicketsInfo
+    CREATE new Order with data from body
+    CALCULATE Travel
+    REQUEST TravelResult via POST /api/v1/ticketinfoservice/ticketinfo with Travel in body
+    CALL dispatchSeat method with Date from OrderTicketsInfo,
+                trainNumber from Order,
+                fromStationId from result of queryForStationId method,
+                toStationId from result of queryForStationId method
+    CALL createOrder method with Order
+    CALL addAssuranceForOrder method with Assurance from OrderTicketInfo and Id from result of createOrder method
+    CALCULATE FoodOrder from OrderTicketsInfo
+    CALL createFoodOrder method with FoodOrder
+    CALCULATE Consign from result of createOrder method and from OrderTicketsInfo
+    CALL createConsign method with Consign
+    CALL getAccount method with accountId from Order
+    CALCULATE NotifyInfo from result of getAccount method and Order
+    CALL sendEmail method with NotifyInfo
+    IF result of all calls successful
+        RETURN successful
+    ELSE
+        RETURN failure
+ENDIF
+
+
+SERVICE METHOD: checkSecurity in PreserveService
+IF method checkSecurity is called THEN
+    RECEIVE accountId
+    REQUEST CheckResult via GET /api/v1/securityservice/securityConfigs/{accountId} with accountId in paths
+    RETURN response body of reCheckResult
+ENDIF
+
+
+SERVICE METHOD: getContactsById in PreserveService
+IF method getContactsById is called THEN
+    RECEIVE contactsId
+    REQUEST GetContactResult via GET /api/v1/contactservice/contacts/{contactsId} with contactsId in paths
+    RETURN response body of reGetContactResult
+ENDIF
+
+
+SERVICE METHOD: getTripAllDetailInformation in PreserveService
+IF method getTripAllDetailInformation is called THEN
+    RECEIVE TripAllDetailInfo
+    REQUEST GetTripAllDetailResult via POST /api/v1/travel2service/trip_detail with TripAllDetailInfo in body
+    RETURN response body of reGetTripAllDetailResult
+ENDIF
+
+
+SERVICE METHOD: queryForStationId in PreserveService
+IF method queryForStationId is called THEN
+    RECEIVE stationName
+    REQUEST QueryForStationId via GET /api/v1/stationservice/stations/id/{stationName} with stationName in paths
+    RETURN response body of reQueryForStationId
+ENDIF
+
+
+SERVICE METHOD: dispatchSeat in PreserveService
+IF method dispatchSeat is called THEN
+    RECEIVE Date, tripId, startStationId, endStationId, seatType
+    CREATE new Seat with received data
+    REQUEST Ticket via POST /api/v1/seatservice/seats with Seat in body
+    RETURN response body of reTicket
+ENDIF
+
+
+SERVICE METHOD: createOrder in PreserveService
+IF method createOrder is called THEN
+    RECEIVE Order
+    REQUEST CreateOrderResult via POST /api/v1/orderOtherService/orderOther with Order in body
+    RETURN response body of reCreateOrderResult
+ENDIF
+
+
+SERVICE METHOD: addAssuranceForOrder in PreserveService
+IF method addAssuranceForOrder is called THEN
+    RECEIVE assuranceType, orderId
+    REQUEST AddAssuranceResult via GET /api/v1/assuranceservice/assurances/{assuranceType}/{orderId}
+                with assuranceType and orderId in paths
+    RETURN response body of reAddAssuranceResult
+ENDIF
+
+
+SERVICE METHOD: createFoodOrder in PreserveService
+IF method createFoodOrder is called THEN
+    RECEIVE FoodOrder
+    REQUEST AddFoodOrderResult via POST /api/v1/foodservice/orders with FoodOrder in body
+    RETURN response body of reAddFoodOrderResult
+ENDIF
+
+
+SERVICE METHOD: createConsign in PreserveService
+IF method createConsign is called THEN
+    RECEIVE Consign
+    REQUEST ResultForTravel via POST /api/v1/consignservice/consigns with Consign in body
+    RETURN response body of reResultForTravel
+ENDIF
+
+
+SERVICE METHOD: getAccount in PreserveService
+IF method getAccount is called THEN
+    RECEIVE accountId
+    REQUEST getAccount via GET /api/v1/userservice/users/id/{accountId} with accountId in paths
+    RETURN response body of getAccount
+ENDIF
+
+
+SERVICE METHOD: sendEmail in PreserveService
+IF method sendEmail is called THEN
+    RECEIVE NotifyInfo
+    REQUEST SendEmail via POST /api/v1/notifyservice/notification/preserve_success with NotifyInfo in body
+    RETURN response body of reSendEmail
+ENDIF

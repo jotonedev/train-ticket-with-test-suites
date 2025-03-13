@@ -1,0 +1,75 @@
+SERVICE: Security Service
+
+ENDPOINT: GET api/v1/securityservice/welcome
+IF request is GET api/v1/securityservice/welcome THEN
+    RETURN welcoming message
+ENDIF
+
+
+ENDPOINT: GET api/v1/securityservice/securityConfigs
+IF request is GET api/v1/securityservice/securityConfigs THEN
+    FIND list of all securityConfigs in database
+    IF list has at least one element
+        RETURN list and success
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF
+
+
+ENDPOINT: POST api/v1/securityservice/securityConfigs
+IF request is POST api/v1/securityservice/securityConfigs THEN
+    RECEIVE securityConfig from request body
+    FIND securityConfig with received name in database
+    IF securityConfig exists
+        RETURN already exists
+    ELSE
+        CREATE new securityConfig with data from body
+        STORE created securityConfig in database
+        RETURN created securityConfig and success
+    ENDIF
+ENDIF
+
+
+ENDPOINT: PUT api/v1/securityservice/securityConfigs
+IF request is PUT api/v1/securityservice/securityConfigs THEN
+    RECEIVE securityConfig from request body
+    FIND securityConfig with received name in database
+    IF securityConfig does NOT exist
+        RETURN not exists
+    ELSE
+        UPDATE found securityConfig with data from body
+        STORE updated securityConfig
+        RETURN updated securityConfig and success
+    ENDIF
+ENDIF
+
+
+ENDPOINT: DELETE api/v1/securityservice/securityConfigs/{id}
+IF request is DELETE api/v1/securityservice/securityConfigs/{id} THEN
+    RECEIVE id from path
+    DELETE securityConfig with id from database
+    FIND securityConfig with id in database
+    IF securityConfig does NOT exist
+        RETURN id and success
+    ELSE
+        RETURN id and unclear
+    ENDIF
+ENDIF
+
+
+ENDPOINT: GET api/v1/securityservice/securityConfigs/{accountId}
+IF request is GET api/v1/securityservice/securityConfigs/{accountId} THEN
+    RECEIVE accountId from path
+    REQUEST GET /api/v1/orderservice/order/security/ with current date and accountId in path from ts-order-service
+    REQUEST GET /api/v1/orderOtherService/orderOther/security/ with current date and accountId in path from ts-order-other-service
+    CALCULATE number of orders in last hour from both responses
+    CALCULATE number of valid orders from both responses
+    FIND configured maximum number of orders in one hour in database
+    FIND configured maximum of unused orders in database
+    IF more orders in last hour than configured OR more valid orders than configured
+        RETURN accountId and too much
+    ELSE
+        RETURN accountId and success
+    ENDIF
+ENDIF

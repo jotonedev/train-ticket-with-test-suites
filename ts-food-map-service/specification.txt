@@ -1,0 +1,80 @@
+SERVICE: Food Map Service
+
+ENDPOINT: GET /api/v1/foodmapservice/foodstores/welcome
+IF request is GET /api/v1/foodmapservice/foodstores/welcome THEN
+    RETURN "Welcome to [ Food store Service ] !"
+ENDIF
+
+ENDPOINT: GET /api/v1/foodmapservice/foodstores
+IF request is GET /api/v1/foodmapservice/foodstores THEN
+    CALL listFoodStores function
+    RETURN list of all food stores
+    IF list has at least one element
+        RETURN list and success
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF
+
+ENDPOINT: GET /api/v1/foodmapservice/foodstores/{stationId}
+IF request is GET /api/v1/foodmapservice/foodstores/{stationId} THEN
+    RECEIVE Station ID
+    CALL listFoodStoresByStationId function with Station ID
+    RETURN list of food stores for the specified station
+    IF list has at least one element
+        RETURN list and success
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF
+
+ENDPOINT: POST /api/v1/foodmapservice/foodstores
+IF request is POST /api/v1/foodmapservice/foodstores THEN
+    RECEIVE list of Station IDs
+    CALL getFoodStoresByStationIds function with list of Station IDs
+    RETURN list of food stores for the specified stations
+    IF list has at least one element
+        RETURN list and success
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF
+
+ENDPOINT: GET /api/v1/foodmapservice/trainfoods/welcome
+IF request is GET /api/v1/foodmapservice/trainfoods/welcome THEN
+    RETURN "Welcome to [ Train Food Service ] !"
+ENDIF
+
+ENDPOINT: GET /api/v1/foodmapservice/trainfoods
+IF request is GET /api/v1/foodmapservice/trainfoods THEN
+    CALL listTrainFood function
+    RETURN list of all train foods
+    IF list has at least one element
+        RETURN list and success
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF
+
+ENDPOINT: GET /api/v1/foodmapservice/trainfoods/{tripId}
+IF request is GET /api/v1/foodmapservice/trainfoods/{tripId} THEN
+    RECEIVE Trip ID
+    CALL listTrainFoodByTripId function with Trip ID
+    RETURN list of train foods for the specified trip
+    IF list has at least one element
+        RETURN list and success
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF
+
+IF any request fails THEN
+    CALL fallback function
+    RETURN default response
+ENDIF
+
+// Comments:
+/*
+    - We can ensure that the food store and train food repositories are robust and handle edge cases gracefully.
+    - We can implement validation for station IDs and trip IDs to prevent incorrect data from being processed.
+*/

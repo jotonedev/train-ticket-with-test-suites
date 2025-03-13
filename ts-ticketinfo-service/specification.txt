@@ -1,0 +1,29 @@
+SERVICE: TicketInfo Service
+
+/*
+    COMMENT: Why does this service even exist?
+    The service seems to be very redundant as it's only functionalities are to welcome and return the response bodies 
+    of requests to the basic service. The requests to the ticketinfo service therefor also could have just been sent to 
+    the basic service immediately. This just creates unnecessary overhead.
+*/
+
+ENDPOINT: GET api/v1/ticketinfoservice/welcome
+IF request is GET api/v1/ticketinfoservice/welcome THEN
+    RETURN welcoming message
+ENDIF
+
+
+ENDPOINT: POST api/v1/ticketinfoservice/ticketinfo
+IF request is POST api/v1/ticketinfoservice/ticketinfo THEN
+    RECEIVE travel from request body
+    REQUEST POST /api/v1/basicservice/basic/travel with travel in body from ts-basic-service
+    RETURN response body of the request
+ENDIF
+
+
+ENDPOINT: GET api/v1/ticketinfoservice/ticketinfo/{name}
+IF request is GET api/v1/ticketinfoservice/ticketinfo/{name} THEN
+    RECEIVE travel name from path
+    REQUEST GET /api/v1/basicservice/basic/ with name in path from ts-basic-service
+    RETURN response body of the request
+ENDIF

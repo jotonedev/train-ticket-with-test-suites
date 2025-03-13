@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: ts-order-other-service
+  data:
+    mongodb:
+      uri: mongodb://localhost/ts
+
+server:
+  port: 12032

@@ -1,0 +1,180 @@
+SERVICE: Order Service
+
+ENDPOINT: GET api/v1/orderservice/welcome
+IF request is GET api/v1/orderservice/welcome THEN
+    RETURN welcoming message
+ENDIF
+
+
+ENDPOINT: POST api/v1/orderservice/order/tickets
+IF request is POST api/v1/orderservice/order/tickets THEN
+    RECEIVE Seat request from request body
+    FIND sold tickets for the given seat request
+    RETURN sold tickets and success
+ENDIF
+
+
+ENDPOINT: POST api/v1/orderservice/order
+IF request is POST api/v1/orderservice/order THEN
+    RECEIVE Order from request body
+    FIND Order with received id in database
+    IF Order exists
+        RETURN already exists
+    ELSE
+        CREATE new Order with data from body
+        STORE created Order in database
+        RETURN created Order and success
+    ENDIF
+ENDIF
+
+
+ENDPOINT: POST api/v1/orderservice/order/admin
+IF request is POST api/v1/orderservice/order/admin THEN
+    RECEIVE Order from request body
+    FIND Order with received id in database
+    IF Order exists
+        RETURN already exists
+    ELSE
+        CREATE new Order with data from body
+        STORE created Order in database
+        RETURN created Order and success
+    ENDIF
+ENDIF
+
+
+ENDPOINT: POST api/v1/orderservice/order/query
+IF request is POST api/v1/orderservice/order/query THEN
+    RECEIVE OrderInfo from request body
+    FIND Orders that match the given OrderInfo
+    RETURN found Orders and success
+ENDIF
+
+
+ENDPOINT: POST api/v1/orderservice/order/refresh
+IF request is POST api/v1/orderservice/order/refresh THEN
+    RECEIVE OrderInfo from request body
+    FIND Orders that match the given OrderInfo
+    RETURN found orders and success
+ENDIF
+
+
+ENDPOINT: GET api/v1/orderservice/order/{travelDate}/{trainNumber}
+IF request is GET api/v1/orderservice/order/{travelDate}/{trainNumber} THEN
+    RECEIVE travelDate and trainNumber from path
+    FIND already sold orders with received travelDate, trainNumber
+    CALCULATE sold Tickets
+    RETURN sold Tickets and success
+ENDIF
+
+
+ENDPOINT: GET api/v1/orderservice/order/price/{orderId}
+IF request is GET api/v1/orderservice/order/price/{orderId} THEN
+    RECEIVE orderId from path
+    FIND Order with received id in database
+    IF Order exists
+        RETURN Order price and success
+    ELSE
+        RETURN not exists
+    ENDIF
+ENDIF
+
+
+ENDPOINT: GET api/v1/orderservice/order/orderPay/{orderId}
+IF request is GET api/v1/orderservice/order/orderPay/{orderId} THEN
+    RECEIVE orderId from path
+    FIND Order with received id in database
+    IF Order exists
+        UPDATE Order status to PAID
+        STORE updated Order in database
+        RETURN updated Order and success
+    ELSE
+        RETURN not exists
+    ENDIF
+ENDIF
+
+
+ENDPOINT: GET api/v1/orderservice/order/{orderId}
+IF request is GET api/v1/orderservice/order/{orderId} THEN
+    RECEIVE orderId from path
+    FIND Order with received id in database
+    IF Order exists
+        RETURN Order and success
+    ELSE
+        RETURN not exists
+    ENDIF
+ENDIF
+
+
+ENDPOINT: GET api/v1/orderservice/order/status/{orderId}/{status}
+IF request is GET api/v1/orderservice/order/status/{orderId}/{status} THEN
+    RECEIVE orderId and status from path
+    FIND Order with received id in database
+    IF Order exists
+        UPDATE Order status to received status
+        STORE updated Order in database
+        RETURN updated Order and success
+    ELSE
+        RETURN not exists
+    ENDIF
+ENDIF
+
+
+ENDPOINT: GET api/v1/orderservice/order/security/{checkDate}/{accountId}
+IF request is GET api/v1/orderservice/order/security/{checkDate}/{accountId} THEN
+    RECEIVE checkDate and accountId from path
+    FIND Orders for the given accountId
+    CALCULATE number of orders in last hour and number of valid orders
+    RETURN calculated numbers and success
+ENDIF
+
+
+ENDPOINT: PUT api/v1/orderservice/order
+IF request is PUT api/v1/orderservice/order THEN
+    RECEIVE Order from request body
+    FIND Order with received id in database
+    IF Order exists
+        UPDATE Order with data from body
+        STORE updated Order in database
+        RETURN updated Order and success
+    ELSE
+        RETURN not exists
+    ENDIF
+ENDIF
+
+
+ENDPOINT: PUT api/v1/orderservice/order/admin
+IF request is PUT api/v1/orderservice/order/admin THEN
+    RECEIVE Order from request body
+    FIND Order with received id in database
+    IF Order exists
+        UPDATE Order with data from body
+        STORE updated Order in database
+        RETURN updated Order and success
+    ELSE
+        RETURN not exists
+    ENDIF
+ENDIF
+
+
+ENDPOINT: DELETE api/v1/orderservice/order/{orderId}
+IF request is DELETE api/v1/orderservice/order/{orderId} THEN
+    RECEIVE orderId from path
+    FIND Order with received id in database
+    IF Order exists
+        DELETE Order with received id from database
+        RETURN deleted order and success
+    ELSE
+        RETURN not exists
+    ENDIF
+ENDIF
+
+
+ENDPOINT: GET api/v1/orderservice/order
+IF request is GET api/v1/orderservice/order THEN
+    FIND list of all Orders in database
+    IF list has at least one element
+        RETURN list and success
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF

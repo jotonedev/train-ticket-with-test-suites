@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: ts-notification-service
+  data:
+    mongodb:
+      uri: mongodb://localhost/ts
+  mail:
+    host: smtp.163.com
+    port: 465
+    username: fdse_microservices@163.com
+    password: fdse1234
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: true
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+server:
+  port: 17853
+

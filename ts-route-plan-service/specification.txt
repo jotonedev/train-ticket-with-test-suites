@@ -1,0 +1,69 @@
+SERVICE: Route Plan Service
+
+ENDPOINT: GET api/v1/routeplanservice/welcome
+IF request is GET api/v1/routeplanservice/welcome THEN
+    RETURN welcoming message
+ENDIF
+
+
+ENDPOINT: POST api/v1/routeplanservice/routePlan/cheapestRoute
+IF request is POST api/v1/routeplanservice/routePlan/cheapestRoute THEN
+    RECEIVE RoutePlanInfo from request body
+    CALCULATE TripInfo with data from RoutPlanInfo
+    REQUEST TripResponses (High Speed) via POST /api/v1/travelservice/trips/left with TripInfo in body
+    REQUEST TripResponses (Normal Train) via POST /api/v1/travel2service/trips/left with TripInfo in body
+    CREATE list of all received TripResponses
+    SORT list of all TripResponses by price for economy class and select up to 5 trips
+    CREATE list of RoutePlanResultUnit
+    FOR each selected TripResonse
+        CREATE RoutePlanResultUnit with data from selected TripResponse
+        ADD RoutePlanResultUnit to list of RoutePlanResultUnit
+    ENDFOR
+    RETURN list of trips of type RoutePlanResultUnit and success
+ENDIF
+
+
+ENDPOINT: POST api/v1/routeplanservice/routePlan/quickestRoute
+IF request is POST api/v1/routeplanservice/routePlan/quickestRoute THEN
+    RECEIVE RoutePlanInfo from request body
+    CALCULATE TripInfo with data from RoutPlanInfo
+    REQUEST TripResponses (High Speed) via POST /api/v1/travelservice/trips/left with TripInfo in body
+    REQUEST TripResponses (Normal Train) via POST /api/v1/travel2service/trips/left with TripInfo in body
+    CREATE list of all received TripResponses
+    SORT list of all TripResponses by shortest time and select up to 5 trips
+    CREATE list of RoutePlanResultUnit
+    FOR each selected TripResonse
+        CREATE RoutePlanResultUnit with data from selected TripResponse
+        ADD RoutePlanResultUnit to list of RoutePlanResultUnit
+    ENDFOR
+    RETURN list of trips of type RoutePlanResultUnit and success
+ENDIF
+
+
+ENDPOINT: POST api/v1/routeplanservice/routePlan/minStopStations
+IF request is POST api/v1/routeplanservice/routePlan/minStopStations THEN
+    RECEIVE RoutePlanInfo from request body
+    REQUEST fromStationId via GET /api/v1/stationservice/stations/id/{stationName} with fromStationName form RoutePlanInfo in paths
+    REQUEST toStationId via GET /api/v1/stationservice/stations/id/{stationName} with toStationName form RoutePlanInfo in paths
+    REQUEST routeList via GET /api/v1/routeservice/routes/{fromStationId}/{toStationId} with received from and to stationId in paths
+    CALCULATE number of stops between the two from and to stations for each route in routeList
+    CALCULATE resultRoutes with the fewest stops and select up to five routes
+    REQUEST TripInformation via POST /api/v1/travelservice/trips/routes with resultRoutes in body
+    REQUEST TripInformation via POST /api/v1/travel2service/trips/routes with resultRoutes in body
+    CREATE list of all received Trips by merging both query results
+    CREATE list of RoutePlanResultUnit
+    FOR each received Trip
+        CREATE TripAllDetailInfo with data from RoutePlanInfo and iD from Trip
+        IF tripId from Trip starts with G or D
+            REQUEST TripAllDetail via POST /api/v1/travelservice/trip_detail with TripAllDetailInfo in body
+        ELSE
+            REQUEST TripAllDetail via POST /api/v1/travel2service/trip_detail with TripAllDetailInfo in body
+        ENDIF
+        CREATE RoutePlanResultUnit with received trip details
+        REQUEST tripRoute via GET /api/v1/routeservice/routes/{routeId} with routeId from Trip in paths
+        IF tripRoute exists
+            SET stop stations of RoutePlanResultUnit to stations of tripRoute
+        ENDIF
+        ADD RoutePlanResultUnit to list of RoutePlanResultUnit
+    ENDFOR
+ENDIF

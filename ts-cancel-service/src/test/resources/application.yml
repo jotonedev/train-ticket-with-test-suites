@@ -1,0 +1,6 @@
+server:
+  port: 18885
+
+spring:
+  application:
+    name: ts-cancel-service

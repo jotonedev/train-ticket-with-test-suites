@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: ts-config-service
+  data:
+    mongodb:
+      uri: mongodb://localhost/ts
+
+server:
+  port: 15679

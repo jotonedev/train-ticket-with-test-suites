@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: ts-verification-code-service
+  data:
+    mongodb:
+      uri: mongodb://localhost/ts
+
+server:
+  port: 15678

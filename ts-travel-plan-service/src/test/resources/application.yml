@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: ts-travel-plan-service
+  data:
+    mongodb:
+      uri: mongodb://localhost/ts
+
+server:
+  port: 14322

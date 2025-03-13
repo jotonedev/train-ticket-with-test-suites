@@ -1,0 +1,84 @@
+SERVICE: User Service
+
+ENDPOINT: GET api/v1/userservice/users/hello
+IF request is GET api/v1/userservice/users/hello THEN
+    RETURN hello
+ENDIF
+
+
+ENDPOINT: GET api/v1/userservice/users
+IF request is GET api/v1/userservice/users THEN
+    FIND list of all users in database
+    IF list has at least one element
+        RETURN list and success
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF
+
+
+ENDPOINT: GET api/v1/userservice/users/{userName}
+IF request is GET api/v1/userservice/users/{userName} THEN
+    RECEIVE userName from path
+    FIND user by userName in database
+    IF user is NOT null
+        RETURN user and success
+    ENDIF
+    RETURN no content
+ENDIF
+
+
+ENDPOINT: GET api/v1/userservice/users/id/{userId}
+IF request is GET api/v1/userservice/users/id/{userId} THEN
+    RECEIVE userId from path
+    FIND user by userId in database
+    IF user is NOT null
+        RETURN user and success
+    ENDIF
+    RETURN no content
+ENDIF
+
+
+ENDPOINT: POST api/v1/userservice/users/register
+IF request is POST api/v1/userservice/users/register THEN
+    RECEIVE user from request body
+    CREATE user with data from body
+    FIND user by userName in database
+    IF no user exists with userName
+        REQUEST userAuthentication via POST /api/v1/auth with data of user in body from ts-auth-service
+        STORE created user in database
+        RETURN created user and success
+    ELSE
+        RETURN already exists
+    ENDIF
+ENDIF
+
+
+ENDPOINT: DELETE api/v1/userservice/users/{userId}
+IF request is DELETE api/v1/userservice/users/{userId} THEN
+    RECEIVE userId from path
+    FIND user with userId in database
+    IF user does exist
+        REQUEST DELETE /api/v1/users/ with userId in path from ts-auth-service
+        DELETE user with userId from database
+        RETURN success
+    ELSE
+        RETURN not exists
+    ENDIF
+ENDIF
+
+
+ENDPOINT: PUT api/v1/userservice/users
+IF request is PUT api/v1/userservice/users THEN
+    RECEIVE user from request body
+    FIND user with received userName in database
+    IF user exists
+        CREATE new user with data from request body
+        DELETE user with userId in database
+        STORE created user in database
+        RETURN created user and success
+    ELSE
+        RETURN not exists
+    ENDIF
+ENDIF
+

@@ -1,0 +1,42 @@
+SERVICE: Basic Service
+
+ENDPOINT: GET "/api/v1/basicservice/welcome"
+    RETURN success with text "Welcome to [ AdminBasicInfo Service ] !"
+END
+
+ENDPOINT: POST "/api/v1/basicservice/basic/travel", PARAM: Travel info
+    RETRIEVE staring station FROM info
+    RETRIEVE ending station FROM info
+
+    PERFORM REQUEST GET "http://ts-station-service:12345/api/v1/stationservice/stations/id/{starting station}" check if staring station exists in station service
+    PERFORM REQUEST GET "http://ts-station-service:12345/api/v1/stationservice/stations/id/{ending station}" check if ending station exists in station service
+
+    IF one of the stations doesn't exist THEN
+        Prepare error message about it in result object
+    ENDIF
+
+    RETRIEVE train type FROM info
+    PERFORM REQUEST GET "http://ts-train-service:14567/api/v1/trainservice/trains/{train type}" load train type exists in train service
+
+    IF train type doesn't exist THEN
+        Prepare error message about it in result object
+    ENDIF
+
+    Generate routeId
+    PERFORM REQUEST GET "http://ts-route-service:11178/api/v1/routeservice/routes/{routeId}" load route by routeId exists in route service
+
+    PERFORM REQUEST GET "http://ts-price-service:16579/api/v1/priceservice/prices/{routeId}/{trainType}" load price config by routeId and trainType from price service
+
+    IF route and priceconfig exists THEN
+        Calculate the price for the route and add into to the result object
+    ENDIF
+
+
+    RETURN success with result object
+END
+
+ENDPOINT: GET "/api/v1/basicservice/basic/{stationName}", PARAM: String stationName
+    PERFORM REQUEST GET "http://ts-station-service:12345/api/v1/stationservice/stations/id/{stationName}" load the station by station name from station service
+    RETURN success with result object returned from station service
+END
+

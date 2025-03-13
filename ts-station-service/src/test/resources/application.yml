@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: ts-station-service
+  data:
+    mongodb:
+      uri: mongodb://ts-station-mongo:27017/ts
+
+server:
+  port: 12345

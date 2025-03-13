@@ -1,0 +1,21 @@
+SERVICE: Admin Route Service
+
+ENDPOINT: GET "/api/v1/adminrouteservice/welcome"
+    RETURN success with text "Welcome to [ AdminRoute Service ] !"
+END
+
+ENDPOINT: GET "/api/v1/adminrouteservice/adminroute"
+    PERFORM REQUEST GET "http://ts-route-service:11178/api/v1/routeservice/routes" to load all routes from route service
+    RETURN success with list of routes
+END
+
+ENDPOINT: POST "/api/v1/adminrouteservice/adminroute", PARAM: RouteInfo request
+    CALL HTTP_POST "http://ts-route-service:11178/api/v1/routeservice/routes" to add new 'request' route OR THROWS RestClientException ON ERROR
+    RETURN success with response payload from route-service
+END
+
+ENDPOINT: DELETE "/api/v1/adminrouteservice/adminroute/{routeId}", PARAM: String routeId
+    CALL HTTP_DELETE "http://ts-route-service:11178/api/v1/routeservice/routes/{routeId}" to delete route OR THROWS RestClientException ON ERROR
+    RETURN success with response payload from route-service
+END
+

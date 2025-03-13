@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: ts-admin-travel-service
+
+server:
+  port: 16114

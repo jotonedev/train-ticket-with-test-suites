@@ -1,0 +1,24 @@
+SERVICE: News Service
+
+ENDPOINT: GET /(.*)
+IF request is GET /(.*) THEN
+    CALL hello function with URL parameter
+    RETURN predefined JSON string containing news articles
+ENDIF
+
+FUNCTION: sayHello2
+    RECEIVE address string
+    RETURN concatenated string "[Ts-News-Service] Get Message From Client: " + address
+ENDFUNCTION
+
+FUNCTION: hello
+    RETURN predefined JSON string containing two news articles:
+        - Title: "News Service Complete", Content: "Congratulations: Your News Service Complete"
+        - Title: "Total Ticket System Complete", Content: "Just a total test"
+ENDFUNCTION
+
+MAIN FUNCTION:
+    SET up web server to listen on "0.0.0.0:12862"
+    SET up GET route "/" to call hello function
+    START web server
+ENDMAIN

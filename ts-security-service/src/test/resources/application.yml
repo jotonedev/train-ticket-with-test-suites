@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: ts-security-service
+  data:
+    mongodb:
+      uri: mongodb://localhost/ts
+
+server:
+  port: 11188

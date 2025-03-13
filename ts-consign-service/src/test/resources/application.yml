@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: ts-consign-service
+  data:
+    mongodb:
+      uri: mongodb://localhost/ts
+
+server:
+  port: 16111

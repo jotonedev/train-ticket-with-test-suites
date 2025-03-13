@@ -1,0 +1,59 @@
+SERVICE: Admin Order Service
+
+ENDPOINT: GET "/api/v1/adminorderservice/welcome"
+    RETURN success with text "Welcome to [ AdminOrder Service ] !"
+END
+
+ENDPOINT: GET "/api/v1/adminorderservice/adminorder"
+    PERFORM REQUEST GET "http://ts-order-service:12031/api/v1/orderservice/order" to load all orders from order service
+    RETRIEVE status from response
+
+    IF status == 1
+    THEN
+        add all returned orders to 'allOrders' list
+    ENDIF
+
+    PERFORM REQUEST GET "http://ts-order-other-service:12032/api/v1/orderOtherService/orderOther" to load all orders from order-other service
+    RETRIEVE status from response
+
+    IF status == 1 THEN
+        add all returned orders to 'allOrders' list
+    ENDIF
+
+    RETURN success with list of orders from both order and order-other services
+END
+
+ENDPOINT: POST "/api/v1/adminorderservice/adminorder", PARAM: Order request
+    RETRIEVE trainNumber from request
+
+    IF trainNumber starts with "G" OR trainNumber starts with "D" THEN
+        PERFORM REQUEST POST "http://ts-order-service:12031/api/v1/orderservice/order/admin" to add a new order with the info provided via body payload 'request' in order service
+    ELSE
+        PERFORM REQUEST POST "http://ts-order-other-service:12032/api/v1/orderOtherService/orderOther/admin" to add a new order with the info provided via body payload 'request' in order-other service
+    ENDIF
+
+    RETURN success with response payload from either order or order-other service depending on train number
+END
+
+ENDPOINT: PUT "/api/v1/adminorderservice/adminorder", PARAM: Order request
+    RETRIEVE trainNumber from request
+
+    IF trainNumber starts with "G" OR trainNumber starts with "D" THEN
+        PERFORM REQUEST PUT "http://ts-order-service:12031/api/v1/orderservice/order/admin" to update exiting order with the info provided via request payload in order service
+    ELSE
+        PERFORM REQUEST PUT "http://ts-order-other-service:12032/api/v1/orderOtherService/orderOther/admin" to update exiting order with the info provided via request payload in order-other service
+    ENDIF
+
+    RETURN success with response payload from either order or order-other service depending on train number
+END
+
+ENDPOINT: DELETE "/api/v1/adminorderservice/adminorder/{orderId}", PARAM: String orderId, PARAM: String trainNumber
+    IF trainNumber starts with "G" OR trainNumber starts with "D" THEN
+        PERFORM REQUEST PUT "http://ts-order-service:12031/api/v1/orderservice/order/{orderId}" to delete exiting order by orderId from order service
+    ELSE
+        PERFORM REQUEST PUT "http://ts-order-other-service:12032/api/v1/orderOtherService/orderOther/{orderId}" to delete exiting order by orderId from order-other service
+    ENDIF
+
+    RETURN success with response payload from either order or order-other service depending on train number
+END
+

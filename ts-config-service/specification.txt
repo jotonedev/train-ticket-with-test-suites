@@ -1,0 +1,80 @@
+SERVICE: Config Service
+
+ENDPOINT: GET /api/v1/configservice/welcome
+IF request is GET /api/v1/configservice/welcome THEN
+    RETURN "Welcome to [ Config Service ] !"
+ENDIF
+
+ENDPOINT: GET /api/v1/configservice/configs
+IF request is GET /api/v1/configservice/configs THEN
+    FIND list of all configurations in the database
+    IF list has at least one element THEN
+        RETURN list of all configurations and success
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF
+
+ENDPOINT: POST /api/v1/configservice/configs
+IF request is POST /api/v1/configservice/configs THEN
+    RECEIVE Config object from request body
+    VALIDATE Config object
+    IF Config object is invalid THEN
+        RETURN error message "Invalid Config object"
+    ENDIF
+    FIND Config with received name in the database
+    IF Config exists THEN
+        RETURN error message "Config already exists"
+    ELSE
+        CREATE new Config with data from request body
+        STORE created Config in the database
+        RETURN created Config and success with status CREATED
+    ENDIF
+ENDIF
+
+ENDPOINT: PUT /api/v1/configservice/configs
+IF request is PUT /api/v1/configservice/configs THEN
+    RECEIVE Config object from request body
+    VALIDATE Config object
+    IF Config object is invalid THEN
+        RETURN error message "Invalid Config object"
+    ENDIF
+    FIND Config with received name in the database
+    IF Config does NOT exist THEN
+        RETURN error message "Config does not exist"
+    ELSE
+        UPDATE found Config with data from request body
+        STORE updated Config in the database
+        RETURN updated Config and success
+    ENDIF
+ENDIF
+
+ENDPOINT: DELETE /api/v1/configservice/configs/{configName}
+IF request is DELETE /api/v1/configservice/configs/{configName} THEN
+    RECEIVE Config Name from path
+    FIND Config with Config Name in the database
+    IF Config does NOT exist THEN
+        RETURN Config Name and error message "Config not found"
+    ELSE
+        DELETE Config with Config Name from the database
+        RETURN Config Name and success
+    ENDIF
+ENDIF
+
+ENDPOINT: GET /api/v1/configservice/configs/{configName}
+IF request is GET /api/v1/configservice/configs/{configName} THEN
+    RECEIVE Config Name from path
+    FIND Config with Config Name in the database
+    IF Config exists THEN
+        RETURN Config details
+    ELSE
+        RETURN error message "Config not found"
+    ENDIF
+ENDIF
+
+// Comments:
+/*
+- We can ensure that the Config object is validated to prevent processing invalid data.
+- We can implement caching for frequently accessed configurations to improve performance.
+- It might also be beneficial to consider adding versioning to configurations for better management of changes over time.
+*/

@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: ts-admin-order-service
+
+server:
+  port: 16112

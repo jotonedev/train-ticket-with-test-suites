@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: ts-food-service
+  data:
+    mongodb:
+      uri: mongodb://localhost/ts
+
+server:
+  port: 18856
+

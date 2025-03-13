@@ -1,0 +1,81 @@
+SERVICE: Route Service
+
+ENDPOINT: GET api/v1/routeservice/welcome
+IF request is GET api/v1/routeservice/welcome THEN
+    RETURN welcoming message
+ENDIF
+
+
+ENDPOINT: POST api/v1/routeservice/routes
+IF request is POST api/v1/routeservice/routes THEN
+    RECEIVE RouteInfo from request body
+    CREATE list of stations from stationList of RouteInfo
+    CREATE list of distances from distanceList of RouteInfo
+    IF length of stations and length of distances NOT equal
+        RETURN not equal
+    ELSE
+        IF Id length from RouteInfo shorter than 10
+            CREATE new Route with data from RouteInfo, created stations and distances
+            STORE created Route in database
+            RETURN created Route and success
+        ELSE
+            FIND Route with received Id in database
+            IF Route NOT exists
+                CREATE new Route with data from RouteInfo
+            ENDIF
+            UPDATE found (or created) Route with data from RouteInfo, created stations and distances
+            STORE updated Route in database
+            RETURN updated Route and success
+        ENDIF
+    ENDIF
+ENDIF
+
+
+ENDPOINT: DELETE api/v1/routeservice/routes/{routeId}
+IF request is DELETE api/v1/routeservice/routes/{routeId} THEN
+    RECEIVE routeId from path
+    FIND Route with routeId in database
+    IF Route exists
+        DELETE found Route from database
+        RETURN routeId and success
+    ELSE
+        RETURN routeId and failure
+    ENDIF
+ENDIF
+
+
+ENDPOINT: GET api/v1/routeservice/routes/{routeId}
+IF request is GET api/v1/routeservice/routes/{routeId} THEN
+    RECEIVE routeId from path
+    FIND Route with routeId in database
+    IF route exists
+        RETURN Route and success
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF
+
+
+ENDPOINT: GET api/v1/routeservice/routes
+IF request is GET api/v1/routeservice/routes THEN
+    FIND all Routes in database
+    IF list has at least one element
+        RETURN list of Routes and success
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF
+
+
+ENDPOINT: GET api/v1/routeservice/routes/{startId}/{terminalId}
+IF request is GET api/v1/routeservice/routes/{startId}/{terminalId} THEN
+    RECEIVE startId and terminalId from path
+    FIND all Routes in database
+    FILTER Routes where startId and terminalId are in list of stations of Route
+                and index of stations from startId is less than index of stations from terminalId
+    IF filtered list has at least one element
+        RETURN filtered list and success
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF

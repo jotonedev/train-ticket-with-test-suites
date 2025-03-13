@@ -1,0 +1,40 @@
+SERVICE: Payment Service
+
+ENDPOINT: GET api/v1/paymentservice/welcome
+IF request is GET api/v1/paymentservice/welcome THEN
+    RETURN welcoming message
+ENDIF
+
+
+ENDPOINT: POST api/v1/paymentservice/payment
+IF request is POST api/v1/paymentservice/payment THEN
+    RECEIVE Payment info from request body
+    FIND Payment with received orderId in database
+    IF Payment does NOT exist
+        CREATE new Payment with data from body
+        STORE created Payment in database
+        RETURN success
+    ELSE
+        RETURN order not found
+    ENDIF
+ENDIF
+
+
+ENDPOINT: POST api/v1/paymentservice/payment/money
+IF request is POST api/v1/paymentservice/payment/money THEN
+    RECEIVE Payment info from request body
+    CREATE new Money with data from body
+    STORE created Money in database
+    RETURN created Money and success
+ENDIF
+
+
+ENDPOINT: GET api/v1/paymentservice/payment
+IF request is GET api/v1/paymentservice/payment THEN
+    FIND list of all Payments in database
+    IF list has at least one element
+        RETURN list and success
+    ELSE
+        RETURN no content
+    ENDIF
+ENDIF

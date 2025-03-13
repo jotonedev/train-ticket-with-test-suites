@@ -1,0 +1,95 @@
+SERVICE: Execute Service
+
+ENDPOINT: GET /api/v1/executeservice/welcome
+IF request is GET /api/v1/executeservice/welcome THEN
+    RETURN "Welcome to [ Execute Service ] !"
+ENDIF
+
+ENDPOINT: GET /api/v1/executeservice/execute/execute/{orderId}
+IF request is GET /api/v1/executeservice/execute/execute/{orderId} THEN
+    RECEIVE Order ID
+    CALL executeTicket function with Order ID
+    // Fetch the order details from ts-order-service
+    CALL getOrderByIdFromOrder function with Order ID
+    IF order is found THEN
+        // Check order status
+        IF order status is not COLLECTED THEN
+            RETURN error message "Order Status Wrong"
+        ENDIF
+        // Update order status to USED in ts-order-service
+        CALL executeOrder function with Order ID and status USED
+        IF execution is successful THEN
+            RETURN success message "Success"
+        ELSE
+            RETURN error message from execution
+        ENDIF
+    ELSE
+        // Fetch the order details from ts-order-other-service
+        CALL getOrderByIdFromOrderOther function with Order ID
+        IF order is found THEN
+            // Check order status
+            IF order status is not COLLECTED THEN
+                RETURN error message "Order Status Wrong"
+            ENDIF
+            // Update order status to USED in ts-order-other-service
+            CALL executeOrderOther function with Order ID and status USED
+            IF execution is successful THEN
+                RETURN success message "Success"
+            ELSE
+                RETURN error message from execution
+            ENDIF
+        ELSE
+            RETURN error message "Order Not Found"
+        ENDIF
+    ENDIF
+ENDIF
+
+ENDPOINT: GET /api/v1/executeservice/execute/collected/{orderId}
+IF request is GET /api/v1/executeservice/execute/collected/{orderId} THEN
+    RECEIVE Order ID
+    CALL collectTicket function with Order ID
+    // Fetch the order details from ts-order-service
+    CALL getOrderByIdFromOrder function with Order ID
+    IF order is found THEN
+        // Check order status
+        IF order status is not PAID or CHANGE THEN
+            RETURN error message "Order Status Wrong"
+        ENDIF
+        // Update order status to COLLECTED in ts-order-service
+        CALL executeOrder function with Order ID and status COLLECTED
+        IF execution is successful THEN
+            RETURN success message "Success"
+        ELSE
+            RETURN error message from execution
+        ENDIF
+    ELSE
+        // Fetch the order details from ts-order-other-service
+        CALL getOrderByIdFromOrderOther function with Order ID
+        IF order is found THEN
+            // Check order status
+            IF order status is not PAID or CHANGE THEN
+                RETURN error message "Order Status Wrong"
+            ENDIF
+            // Update order status to COLLECTED in ts-order-other-service
+            CALL executeOrderOther function with Order ID and status COLLECTED
+            IF execution is successful THEN
+                RETURN success message "Success"
+            ELSE
+                RETURN error message from execution
+            ENDIF
+        ELSE
+            RETURN error message "Order Not Found"
+        ENDIF
+    ENDIF
+ENDIF
+
+IF any request fails THEN
+    CALL fallback function
+    RETURN default response
+ENDIF
+
+// Comments:
+/*
+    - We can validate all inputs, especially the Order ID, to ensure they conform to expected formats.
+    - We can implement logging at key points in the flow to aid in debugging and monitoring.
+*/

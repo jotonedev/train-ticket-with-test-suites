@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: ts-admin-route-service
+
+server:
+  port: 16113

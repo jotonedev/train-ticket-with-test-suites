@@ -1,0 +1,98 @@
+SERVICE: Assurance Service
+
+ENDPOINT: GET "/api/v1/assuranceservice/welcome"
+    RETURN success with text "Welcome to [ Assurance Service ] !"
+END
+
+ENDPOINT: GET "/api/v1/assuranceservice/assurances"
+    DB_FIND to find all assurances in database
+    IF at least one assurance exist
+    THEN
+        Prepare collection of all assurances to return
+        RETURN success with a list of assurances
+    ELSE
+        RETURN failure with no data
+    ENDIF
+END
+
+ENDPOINT: GET "/api/v1/assuranceservice/assurances/types"
+    GET a list of predefined assurance types as collection
+    IF collection contains at least one element THEN
+        RETURN success with a list of assurance types
+    ELSE
+        RETURN failure with no data
+    ENDIF
+END
+
+ENDPOINT: DELETE "/api/v1/assuranceservice/assurances/assuranceid/{assuranceId}", PARAM: String assuranceId
+    DB_DELETE to delete assurance from database by provided assuranceId
+    DB_FIND to load assurance from database by provided assuranceId to check if it was successfully removed
+
+    IF assurance wasn't found in database THEN
+        RETURN success with no data
+    ELSE
+        RETURN failure with no data
+    ENDIF
+END
+
+ENDPOINT: DELETE "/api/v1/assuranceservice/assurances/orderid/{orderId}", PARAM: String orderId
+    DB_DELETE to delete assurance from database by provided orderId
+    DB_FIND to load assurance from database by provided orderId to check if it was successfully removed
+
+    IF assurance wasn't found in database THEN
+        RETURN success with no data
+    ELSE
+        RETURN failure with no data
+    ENDIF
+END
+
+ENDPOINT: PATCH "/api/v1/assuranceservice/assurances/{assuranceId}/{orderId}/{typeIndex}", PARAM: String assuranceId, PARAM: String orderId, PARAM: int typeIndex
+    DB_FIND to load assurance from database by provided orderId
+
+    IF assurance wasn't found in database THEN
+        RETURN failure with no data
+    ELSE
+        RETRIEVE assurance type BY typeIndex
+        IF type could be determined THEN
+            SET new assurance type to found assurance
+            DB_STORE to store the update assurance
+
+            RETURN success with updated assurance in payload
+        ELSE
+            RETURN failure with no data
+        ENDIF
+    ENDIF
+END
+
+ENDPOINT: GET "/api/v1/assuranceservice/assurances/{typeIndex}/{orderId}", PARAM: int typeIndex, PARAM: String orderId
+    DB_FIND to load assurance from database by provided orderId
+    Determine the assurance type by typeIndex
+
+    IF found in database assurance already exists THEN
+        RETURN failure with no data to indicate that such assurance already exists
+    ELIF type could not be determined THEN
+        RETURN failure with no data indicating that type doesn't exist
+    ELSE
+        Create new assurance object
+        DB_STORE to save new assurance
+        RETURN success with newly created assurance
+    ENDIF
+END
+
+ENDPOINT: GET "/api/v1/assuranceservice/assurances/assuranceId/{assuranceId}", PARAM: String assuranceId
+    DB_FIND to load assurance from database by provided assuranceId
+    IF assurance was found in database THEN
+        RETURN success with data
+    ELSE
+        RETURN failure with no data
+    ENDIF
+END
+
+ENDPOINT: GET "/api/v1/assuranceservice/assurance/orderid/{orderId}", PARAM: String orderId
+    DB_FIND to load assurance from database by provided orderId
+    IF assurance was found in database THEN
+        RETURN success with data
+    ELSE
+        RETURN failure with no data
+    ENDIF
+END

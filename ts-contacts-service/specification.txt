@@ -1,0 +1,116 @@
+SERVICE: Contacts Service
+
+ENDPOINT: GET /api/v1/contactservice/contacts/welcome
+IF request is GET /api/v1/contactservice/contacts/welcome THEN
+    RETURN "Welcome to [ Contacts Service ] !"
+ENDIF
+
+ENDPOINT: GET /api/v1/contactservice/contacts
+IF request is GET /api/v1/contactservice/contacts THEN
+    CALL getAllContacts function
+    FIND all contacts in database
+    IF contacts list is not empty THEN
+        RETURN list of all contacts and success message
+    ELSE
+        RETURN no content message
+    ENDIF
+ENDIF
+
+ENDPOINT: POST /api/v1/contactservice/contacts
+IF request is POST /api/v1/contactservice/contacts THEN
+    RECEIVE Contacts object
+    VALIDATE Contacts object
+    IF Contacts object is valid THEN
+        CALL create function with Contacts object
+        CHECK if contact already exists in database by ID
+        IF contact exists THEN
+            RETURN error message "Contacts already exists"
+        ELSE
+            ASSIGN new UUID to Contacts ID
+            STORE new contact in database
+            RETURN result of contact creation with status CREATED
+        ENDIF
+    ELSE
+        RETURN error message "Invalid Contacts object"
+    ENDIF
+ENDIF
+
+ENDPOINT: POST /api/v1/contactservice/contacts/admin
+IF request is POST /api/v1/contactservice/contacts/admin THEN
+    RECEIVE Contacts object
+    VALIDATE Contacts object
+    IF Contacts object is valid THEN
+        SET Contacts ID to a new UUID
+        CALL createContacts function with Contacts object
+        CHECK if admin contact already exists in database by ID
+        IF contact exists THEN
+            RETURN error message "Contacts already exists"
+        ELSE
+            STORE new admin contact in database
+            RETURN result of contact creation in admin with status CREATED
+        ENDIF
+    ELSE
+        RETURN error message "Invalid Contacts object"
+    ENDIF
+ENDIF
+
+ENDPOINT: DELETE /api/v1/contactservice/contacts/{contactsId}
+IF request is DELETE /api/v1/contactservice/contacts/{contactsId} THEN
+    RECEIVE Contacts ID
+    CALL delete function with Contacts ID
+    FIND contact by ID in database
+    IF contact exists THEN
+        DELETE contact from database
+        RETURN result of contact deletion and success message
+    ELSE
+        RETURN error message "Contacts ID not found"
+    ENDIF
+ENDIF
+
+ENDPOINT: PUT /api/v1/contactservice/contacts
+IF request is PUT /api/v1/contactservice/contacts THEN
+    RECEIVE Contacts object
+    VALIDATE Contacts object
+    IF Contacts object is valid THEN
+        CALL modify function with Contacts object
+        FIND existing contact by ID in database
+        IF contact exists THEN
+            UPDATE contact information with new data
+            STORE updated contact in database
+            RETURN result of contact modification and success message
+        ELSE
+            RETURN error message "Contacts not found"
+        ENDIF
+    ELSE
+        RETURN error message "Invalid Contacts object"
+    ENDIF
+ENDIF
+
+ENDPOINT: GET /api/v1/contactservice/contacts/account/{accountId}
+IF request is GET /api/v1/contactservice/contacts/account/{accountId} THEN
+    RECEIVE Account ID
+    CALL findContactsByAccountId function with Account ID
+    FIND contacts by Account ID in database
+    IF contacts list is not empty THEN
+        RETURN contacts associated with the account and success message
+    ELSE
+        RETURN no content message
+    ENDIF
+ENDIF
+
+ENDPOINT: GET /api/v1/contactservice/contacts/{id}
+IF request is GET /api/v1/contactservice/contacts/{id} THEN
+    RECEIVE Contacts ID
+    CALL findContactsById function with Contacts ID
+    FIND contact by ID in database
+    IF contact exists THEN
+        RETURN contact details and success message
+    ELSE
+        RETURN no content message
+    ENDIF
+ENDIF
+
+// Comments:
+/*
+    - We can ensure that all Contacts objects received in requests are validated thoroughly to avoid processing invalid data.
+*/

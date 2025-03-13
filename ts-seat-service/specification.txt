@@ -1,0 +1,69 @@
+SERVICE: Seat Service
+
+ENDPOINT: GET api/v1/seatservice/welcome
+IF request is GET api/v1/seatservice/welcome THEN
+    RETURN welcoming message
+ENDIF
+
+
+ENDPOINT: POST api/v1/seatservice/seats
+IF request is POST api/v1/seatservice/seats THEN
+    RECEIVE Seat from request body
+    IF TrainNumber from Seat starts with G or D
+        REQUEST Route via GET /api/v1/travelservice/routes/{trainNumber} with TrainNumber in paths
+        REQUEST LeftTicketInfo via POST /api/v1/orderservice/order/tickets with Seat in body
+        REQUEST TrainType via GET /api/v1/travelservice/train_types/{trainNumber} with TrainNumber in paths
+    ELSE
+        REQUEST Route via GET /api/v1/travel2service/routes/{trainNumber} with TrainNumber in paths
+        REQUEST LeftTicketInfo via POST /api/v1/orderOtherservice/order/tickets with Seat in body
+        REQUEST TrainType via GET /api/v1/travel2service/train_types/{trainNumber} with TrainNumber in paths
+    ENDIF
+    CREATE list of Stations from Stations of received Route
+    CALCULATE total seatNumber based on SeatType from Seat
+    CREATE new Ticket with StartStation and DestStation from Seat
+    CREATE random seatNumber within range of calculated total seatNumber
+    IF received LeftTicketInfo exists
+        FOR each soldTicket from LeftTicketInfo
+            IF DestStation of soldTicket is before StartStation in list of Stations
+                SET seatNumber of Ticket to seatNumber of soldTicket
+                RETURN Ticket and success
+            ENDIF
+        ENDFOR
+        WHILE calculated random seatNumber is in soldTickets
+            CALCULATE new random seatNumber within range of calculated total seatNumber
+        ENDWHILE
+    ENDIF
+    SET seatNumber of Ticket to created seatNumber
+    RETURN Ticket and success
+ENDIF
+
+
+ENDPOINT: POST api/v1/seatservice/seats/left_tickets
+IF request is POST api/v1/seatservice/seats/left_tickets THEN
+    CREATE counter for numberOfLeftTickets
+    IF TrainNumber from Seat starts with G or D
+        REQUEST Route via GET /api/v1/travelservice/routes/{trainNumber} with TrainNumber in paths
+        REQUEST LeftTicketInfo via POST /api/v1/orderservice/order/tickets with Seat in body
+        REQUEST TrainType via GET /api/v1/travelservice/train_types/{trainNumber} with TrainNumber in paths
+    ELSE
+        REQUEST Route via GET /api/v1/travel2service/routes/{trainNumber} with TrainNumber in paths
+        REQUEST LeftTicketInfo via POST /api/v1/orderOtherservice/order/tickets with Seat in body
+        REQUEST TrainType via GET /api/v1/travel2service/train_types/{trainNumber} with TrainNumber in paths
+    ENDIF
+    CREATE list of Stations from Stations of received Route
+    CALCULATE total seatNumber based on SeatType from Seat
+    IF received LeftTicketInfo exists
+        FOR each soldTicket from LeftTicketInfo
+            IF DestStation of soldTicket is before StartStation in list of Stations
+                INCREMENT numberOfLeftTickets
+            ENDIF
+        ENDFOR
+    ENDIF
+    REQUEST configValue via GET /api/v1/configservice/configs/{configName} with DirectTicketAllocationProportion in paths
+    IF first Station from Route NOT equals startStation from Seat or last Station from Route NOT equals DestStation from Seat
+        SET configValue to 1.0 - configValue
+    ENDIF
+    CALCULATE unusedNum using total seatNumber, configValue and amount of soldTickets
+    INCREMENT numberOfLeftTickets by calculated unusedNum
+    RETURN numberOfLeftTickets and success
+ENDIF

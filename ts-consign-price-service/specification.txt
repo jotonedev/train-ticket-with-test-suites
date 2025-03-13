@@ -1,0 +1,49 @@
+SERVICE: ConsignPrice Service
+
+ENDPOINT: GET /api/v1/consignpriceservice/welcome
+IF request is GET /api/v1/consignpriceservice/welcome THEN
+    RETURN "Welcome to [ ConsignPrice Service ] !"
+ENDIF
+
+ENDPOINT: GET /api/v1/consignpriceservice/consignprice/{weight}/{isWithinRegion}
+IF request is GET /api/v1/consignpriceservice/consignprice/{weight}/{isWithinRegion} THEN
+    RECEIVE Weight and IsWithinRegion
+    VALIDATE Weight and IsWithinRegion
+    IF Weight and IsWithinRegion are valid THEN
+        CALL getPriceByWeightAndRegion function with Weight and IsWithinRegion
+        RETURN price based on Weight and IsWithinRegion and success
+    ELSE
+        RETURN error message "Invalid parameters"
+    ENDIF
+ENDIF
+
+ENDPOINT: GET /api/v1/consignpriceservice/consignprice/price
+IF request is GET /api/v1/consignpriceservice/consignprice/price THEN
+    CALL queryPriceInformation function
+    RETURN price information and success
+ENDIF
+
+ENDPOINT: GET /api/v1/consignpriceservice/consignprice/config
+IF request is GET /api/v1/consignpriceservice/consignprice/config THEN
+    CALL getPriceConfig function
+    RETURN price configuration and success
+ENDIF
+
+ENDPOINT: POST /api/v1/consignpriceservice/consignprice
+IF request is POST /api/v1/consignpriceservice/consignprice THEN
+    RECEIVE ConsignPrice object
+    VALIDATE ConsignPrice object
+    IF ConsignPrice object is valid THEN
+        CALL createAndModifyPrice function with ConsignPrice object
+        RETURN result of price configuration modification and success
+    ELSE
+        RETURN error message "Invalid ConsignPrice object"
+    ENDIF
+ENDIF
+
+// Comments:
+/*
+    - We can ensure that the ConsignPrice object is validated to prevent processing invalid data.
+    - We can implement caching for frequently accessed price configurations to improve performance.
+    - It might also be beneficial to consider adding versioning to configurations for better management of changes over time.
+*/

@@ -1,0 +1,90 @@
+SERVICE: InsidePayment Service
+
+ENDPOINT: GET /api/v1/inside_pay_service/welcome
+IF request is GET /api/v1/inside_pay_service/welcome THEN
+    RETURN "Welcome to [ InsidePayment Service ] !"
+ENDIF
+
+ENDPOINT: POST /api/v1/inside_pay_service/inside_payment
+IF request is POST /api/v1/inside_pay_service/inside_payment THEN
+    RECEIVE PaymentInfo object
+    IF PaymentInfo object is valid THEN
+        CALL pay function with PaymentInfo object
+        // Communication with other services
+        REQUEST order details from ts-order-service or ts-order-other-service based on the trip type
+        IF the payment exceeds the available balance THEN
+            REQUEST external payment from ts-payment-service
+        ENDIF
+        RETURN result of payment (success or failure message)
+    ELSE
+        RETURN error message "Invalid PaymentInfo object"
+    ENDIF
+ENDIF
+
+ENDPOINT: POST /api/v1/inside_pay_service/inside_payment/account
+IF request is POST /api/v1/inside_pay_service/inside_payment/account THEN
+    RECEIVE AccountInfo object
+    IF AccountInfo object is valid THEN
+        CALL createAccount function with AccountInfo object
+        RETURN result of account creation (success or failure message)
+    ELSE
+        RETURN error message "Invalid AccountInfo object"
+    ENDIF
+ENDIF
+
+ENDPOINT: GET /api/v1/inside_pay_service/inside_payment/{userId}/{money}
+IF request is GET /api/v1/inside_pay_service/inside_payment/{userId}/{money} THEN
+    RECEIVE User ID and Money
+    CALL addMoney function with User ID and Money
+    RETURN result of adding money to account
+ENDIF
+
+ENDPOINT: GET /api/v1/inside_pay_service/inside_payment/payment
+IF request is GET /api/v1/inside_pay_service/inside_payment/payment THEN
+    CALL queryPayment function
+    RETURN list of all payments
+ENDIF
+
+ENDPOINT: GET /api/v1/inside_pay_service/inside_payment/account
+IF request is GET /api/v1/inside_pay_service/inside_payment/account THEN
+    CALL queryAccount function
+    RETURN account information
+ENDIF
+
+ENDPOINT: GET /api/v1/inside_pay_service/inside_payment/drawback/{userId}/{money}
+IF request is GET /api/v1/inside_pay_service/inside_payment/drawback/{userId}/{money} THEN
+    RECEIVE User ID and Money
+    CALL drawBack function with User ID and Money
+    RETURN result of drawback
+ENDIF
+
+ENDPOINT: POST /api/v1/inside_pay_service/inside_payment/difference
+IF request is POST /api/v1/inside_pay_service/inside_payment/difference THEN
+    RECEIVE PaymentInfo object
+    IF PaymentInfo object is valid THEN
+        CALL payDifference function with PaymentInfo object
+        // Communication with other services
+        REQUEST external payment from ts-payment-service if necessary
+        RETURN result of payment difference (success or failure message)
+    ELSE
+        RETURN error message "Invalid PaymentInfo object"
+    ENDIF
+ENDIF
+
+ENDPOINT: GET /api/v1/inside_pay_service/inside_payment/money
+IF request is GET /api/v1/inside_pay_service/inside_payment/money THEN
+    CALL queryAddMoney function
+    RETURN list of all added money transactions
+ENDIF
+
+IF any request fails THEN
+    CALL fallback function
+    RETURN default response
+ENDIF
+
+// Comments:
+/*
+    - We can ensure validation for PaymentInfo and AccountInfo objects to prevent processing invalid data.
+    - We can fetch the order details from ts-order-service or ts-order-other-service when required.
+    - We can request external payment from ts-payment-service if the available balance is insufficient.
+*/
