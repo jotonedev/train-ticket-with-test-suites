@@ -17,6 +17,14 @@ programming languages and frameworks it uses are as follows:
 - Go - Webgo
 - DB - Mongo, MySQL
 
+You can find more information on the system and its functionality in the original [TrainTicket repository](https://github.com/FudanSELab/train-ticket)
+
+Within the test directory of each microservice, tests are divided into separate directories for ***component*** and ***integration*** tests to reflect the type of testing being performed. 
+We include an integration directory only if the service makes requests to other services and, therefore, an integration scenario is given.
+Within both the component and integration directories, tests are further subdivided into subdirectories based on HTTP methods. 
+Consequently, tests are categorized under ***get***, ***post***, ***put*** or ***delete*** directories.
+Some services additionally contain ***AuthTest*** classes for testing their security-related behavior.
+
 ## Setup for executing Integration Tests
 
 Make sure to run `maven clean` or `mvn clean` and `maven package` or `mvn package` before executing the test cases.
@@ -56,3 +64,8 @@ Once the application starts, you can visit the Train Ticket web page at [http://
 
 In order to know how to use the application, you can refer
 to [the User Guide](https://github.com/FudanSELab/train-ticket/wiki/User-Guide).
+
+## Paper Reference
+Lena Gregor, Marcel Skalski, Alexander Pretschner. <br>
+**Benchmarking Component and Integration Testing in Microservices: Test Suites and Fault Analysis on TrainTicket** <br>
+IEEE International Congress On Intelligent And Service-Oriented Systems Engineering (CISOSE 2025)
