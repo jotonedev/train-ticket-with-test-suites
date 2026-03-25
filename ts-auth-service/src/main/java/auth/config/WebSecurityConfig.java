@@ -96,8 +96,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter
             .antMatchers(HttpMethod.DELETE, "/api/v1/users/*").hasRole("ADMIN")
             // create user and role while user register
             .antMatchers("/user/**").permitAll()
-            .antMatchers("/swagger-ui.html", "/webjars/**", "/images/**",
-                "/configuration/**", "/swagger-resources/**", "/v2/**").permitAll()
             .anyRequest().authenticated()
             .and()
             .addFilterBefore(new JWTFilter(), UsernamePasswordAuthenticationFilter.class);

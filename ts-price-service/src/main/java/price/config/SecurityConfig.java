@@ -83,8 +83,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
             .antMatchers(HttpMethod.POST, prices).hasAnyRole(admin)
             .antMatchers(HttpMethod.DELETE, prices).hasAnyRole(admin)
             .antMatchers(HttpMethod.PUT, prices).hasAnyRole(admin)
-            .antMatchers("/swagger-ui.html", "/webjars/**", "/images/**",
-                "/configuration/**", "/swagger-resources/**", "/v2/**").permitAll()
             .anyRequest().authenticated()
             .and()
             .addFilterBefore(new JWTFilter(), UsernamePasswordAuthenticationFilter.class);

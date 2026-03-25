@@ -6,8 +6,6 @@ spring:
     name: ts-admin-order-service
 
 
-swagger:
-  controllerPackage: adminorder.controller
 
 #opentracing:
 #  jaeger:

@@ -77,8 +77,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
             .authorizeRequests()
             .antMatchers("/api/v1/userservice/users/**").permitAll()
             .antMatchers(HttpMethod.DELETE, "/api/v1/userservice/users/*").hasAnyRole("ADMIN", "USER")
-            .antMatchers("/swagger-ui.html", "/webjars/**", "/images/**",
-                "/configuration/**", "/swagger-resources/**", "/v2/**").permitAll()
             .anyRequest().authenticated()
             .and()
             .addFilterBefore(new JWTFilter(), UsernamePasswordAuthenticationFilter.class);

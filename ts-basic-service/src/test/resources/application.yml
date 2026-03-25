@@ -5,5 +5,3 @@ spring:
   application:
     name: ts-basic-service
 
-swagger:
-  controllerPackage: fdse.microservice.controller

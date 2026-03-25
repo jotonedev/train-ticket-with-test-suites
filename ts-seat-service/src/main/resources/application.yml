@@ -5,8 +5,6 @@ spring:
   application:
     name: ts-seat-service
 
-swagger:
-  controllerPackage: seat.controller
 
 #opentracing:
 #  jaeger:

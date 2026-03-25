@@ -10,8 +10,6 @@ spring:
       database: ts-user-mongo
       port: 27017
 
-swagger:
-  controllerPackage: user.controller
 
 #opentracing:
 #  jaeger:

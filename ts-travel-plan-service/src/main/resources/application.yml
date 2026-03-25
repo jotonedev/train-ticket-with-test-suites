@@ -7,8 +7,6 @@ spring:
     name: ts-travel-plan-service
 
 
-swagger:
-  controllerPackage: travelplan.controller
 
 #opentracing:
 #  jaeger:

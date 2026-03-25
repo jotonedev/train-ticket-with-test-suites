@@ -13,8 +13,6 @@ spring:
 server:
   port: 15679  # HTTP (Tomcat) port
 
-swagger:
-  controllerPackage: config.controller
 
 #opentracing:
 #  jaeger:

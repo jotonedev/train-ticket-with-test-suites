@@ -6,8 +6,6 @@ spring:
   application:
     name: ts-verification-code-service
 
-swagger:
-  controllerPackage: verifycode.controller
 
 #opentracing:
 #  jaeger:

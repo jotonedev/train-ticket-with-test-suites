@@ -9,8 +9,6 @@ spring:
       database: ts-auth-mongo
       port: 27017
 
-swagger:
-  controllerPackage: auth.controller
 
 #opentracing:
 #  jaeger:

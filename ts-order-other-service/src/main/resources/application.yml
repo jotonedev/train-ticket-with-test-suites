@@ -37,8 +37,6 @@ spring:
 #          contentType: application/json
 #          binder: rabbit
 
-swagger:
-  controllerPackage: other.controller
 
 #opentracing:
 #  jaeger:

@@ -5,8 +5,6 @@ spring:
   application:
     name: ts-admin-user-service
 
-swagger:
-  controllerPackage: adminuser.controller
 
 #opentracing:
 #  jaeger:

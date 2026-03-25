@@ -5,8 +5,6 @@ spring:
   application:
     name: ts-cancel-service
 
-swagger:
-  controllerPackage: cancel.controller
 
 #opentracing:
 #  jaeger:
