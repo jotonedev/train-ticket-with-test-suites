@@ -121,13 +121,13 @@
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>1.19.8</version>
+      <version>1.21.4</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>mongodb</artifactId>
-      <version>1.17.6</version>
+      <version>1.21.4</version>
       <scope>test</scope>
     </dependency>
 
@@ -163,6 +163,9 @@
         <version>3.0.0-M5</version>
         <configuration>
           <testFailureIgnore>true</testFailureIgnore>
+          <environmentVariables>
+            <DOCKER_API_VERSION>1.40</DOCKER_API_VERSION>
+          </environmentVariables>
         </configuration>
       </plugin>
 
